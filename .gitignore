@@ -1,0 +1,31 @@
+
+---
+
+# 🧠 2. .gitignore (MUY IMPORTANTE)
+
+Crea un `.gitignore` en la raíz:
+
+```gitignore
+# Build
+bin/
+obj/
+
+# User files
+*.user
+*.suo
+
+# Logs
+*.log
+
+# VS Code
+.vscode/
+
+# Visual Studio
+.vs/
+
+# Environment
+.env
+
+# Config sensibles
+appsettings.Development.json
+appsettings.Local.json

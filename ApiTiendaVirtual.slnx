@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Application/Application.csproj" Id="bd2f3df9-0145-43f6-8895-e7bfcd8be504" />
+  <Project Path="Data/Data.csproj" Id="07563b31-4950-47a4-9a18-5c14aa62acc6" />
+  <Project Path="Domain/Domain.csproj" Id="6299a1f8-a1fa-4941-aff5-0d10107126b8" />
+  <Project Path="Infrastructure/Infrastructure.csproj" Id="0a4d3aca-1588-4bb0-b74b-72555efb5e9f" />
+  <Project Path="TiendaVirtualApi/TiendaVirtualApi.csproj" Id="914ce507-fb77-4e1f-beef-7535c5278b6c" />
+</Solution>
