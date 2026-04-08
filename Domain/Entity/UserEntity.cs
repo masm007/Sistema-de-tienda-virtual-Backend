@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Net.Mail;
 
 namespace Domain.Entity {
     public class UserEntity {
@@ -13,53 +14,88 @@ namespace Domain.Entity {
         public string Email { get; private set; }
         public string Password { get; private set; }
         public string Fullname => $"{FirstName} {LastName}";
-        public UserEntity() { }
 
-        public UserEntity(string firstName, string lastName, string email, string pass) {
-            this.FirstName = firstName.Trim();
-            this.LastName = lastName.Trim();
-            this.Email = email.Trim();
-            this.Password = pass.Trim();
-        }
-        public UserEntity(int id, string firstName, string lastName, string email, string pass) {
+        //importante para EF
+        private UserEntity() { }
+
+        public UserEntity(string firstName, string lastName, string email, string password) {
+            var normalizedEmail = NormalizeEmail(email);
             ValidateName(firstName, "nombre");
             ValidateName(lastName, "apellido");
-            ValidateEmail(email);
+            ValidateEmail(normalizedEmail);
+
+            this.FirstName = firstName.Trim();
+            this.LastName = lastName.Trim();
+            this.Email = normalizedEmail;
+            this.Password = password;
+        }
+        public UserEntity(int id, string firstName, string lastName, string email, string password) {
+            var normalizedEmail = NormalizeEmail(email);
+            ValidateName(firstName, "nombre");
+            ValidateName(lastName, "apellido");
+            ValidateEmail(normalizedEmail);
+
             this.Id = id;
             this.FirstName = firstName.Trim();
             this.LastName = lastName.Trim();
-            this.Email = email.Trim();
-            this.Password = pass.Trim();
+            this.Email = normalizedEmail;
+            this.Password = password;
         }
 
         public void ValidateName(string name, string property) {
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException($"El {property} no puede estar vacio", nameof(name));
             if (name.Trim().Length < 3) throw new ArgumentException($"El {property} no puede tener menos de 3 caracteres");
-            if (name.Trim().Length >= 50) throw new ArgumentException($"El {property} no puede superar los 19 caracteres");
+            if (name.Trim().Length >= 100) throw new ArgumentException($"El {property} no puede superar los 100 caracteres");
         }
 
         public void ValidateEmail(string email) {
-            string regexEmail = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
-            if (string.IsNullOrWhiteSpace(email)) throw new ArgumentException($"El correo no puede estar vacio", nameof(email));
-            if (email.Trim().Length < 15 || email.Trim().Length >= 100) throw new ArgumentException("La longitud de ese correo no es valida tiene que ser mayor a 15 y menor a 100");
-            if (!Regex.IsMatch(email, regexEmail)) throw new ArgumentException("El correo no cumple con el formato adecuado");
+            if (string.IsNullOrWhiteSpace(email))
+                throw new ArgumentException("El correo no puede estar vacío", nameof(email));
+
+            if (email.Length > 100)
+                throw new ArgumentException("El correo no puede superar los 100 caracteres");
+
+            try {
+                var addr = new MailAddress(email);
+            } catch {
+                throw new ArgumentException("El correo no tiene un formato válido");
+            }
         }
 
-        public void ValidatePassword(string password) {
-            string regexPass = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*[&*])[A-Za-z\d&*]{12,20}$";
-            if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException($"La contrasenia no puede estar vacia", nameof(password));
-            if (!Regex.IsMatch(password, regexPass)) throw new ArgumentException("La contrasenia no cumple con el formato adecuado (una mayuscula, una minuscula o un caracter especial)");
-
-        }
-
+        /*
         public void UpdatePersonalInfo(string firstName, string lastName, string email, string pass) {
+            var normalizedEmail = email.Trim().ToLowerInvariant();
             ValidateName(firstName, "nombre");
             ValidateName(lastName, "apellido");
-            ValidateEmail(email);
+            ValidateEmail(normalizedEmail);
             FirstName = firstName.Trim();
             LastName = lastName.Trim();
-            Email = email.Trim();
-            Password = pass.Trim();
+            Email = normalizedEmail;
+            Password = pass;
+        }
+        */
+
+        public void UpdatePersonalInfo(string firstName, string lastName, string email) {
+            var normalizedEmail = NormalizeEmail(email);
+            ValidateName(firstName, "nombre");
+            ValidateName(lastName, "apellido");
+            ValidateEmail(normalizedEmail);
+            FirstName = firstName.Trim();
+            LastName = lastName.Trim();
+            Email = normalizedEmail;
+        }
+
+        public void UpdatePassword(string password) {
+            if (string.IsNullOrWhiteSpace(password)) {
+                throw new ArgumentException("La contraseña no puede ser vacía");
+            }
+            Password = password;
+        }
+        private string NormalizeEmail(string email) {
+            if (string.IsNullOrWhiteSpace(email))
+                throw new ArgumentException("Email inválido", nameof(email));
+
+            return email.Trim().ToLowerInvariant();
         }
     }
 }

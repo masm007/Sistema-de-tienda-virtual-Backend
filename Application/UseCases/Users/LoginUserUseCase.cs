@@ -12,18 +12,28 @@ namespace Application.UseCases.Users {
     public class LoginUserUseCase {
         private readonly IRepository<UserEntity, int> _repository;
         private readonly IJwtService _jwtService;
-        public LoginUserUseCase(IRepository<UserEntity, int> repository, IJwtService jwtService) {
+        private readonly IPasswordHasher _passwordHasher;
+
+        public LoginUserUseCase(IRepository<UserEntity, int> repository, IJwtService jwtService,
+                IPasswordHasher passwordHasher) {
             _repository = repository;
             _jwtService = jwtService;
+            _passwordHasher = passwordHasher;
         }
         public async Task<ResponseUserDto?> Execute(LoginUserDto loginUserDto) {
-            var user = await _repository.GetByEmailAsync(loginUserDto.Email);
+            var normalizedEmail = loginUserDto.Email.Trim().ToLowerInvariant();
+            var user = await _repository.GetByEmailAsync(normalizedEmail);
             if (user == null) {
                 throw new UnauthorizedAccessException("Credenciales inválidas");
             }
+            if (!_passwordHasher.Verify(loginUserDto.Password, user.Password)) {
+                throw new UnauthorizedAccessException("Credenciales inválidas");
+            }
+            /*
             if (user.Password != loginUserDto.Password) {
                 throw new UnauthorizedAccessException("Credenciales inválidas");
             }
+            */
             var token = _jwtService.GenerateToken(user);
             var usuario = new ResponseUserDto(
                 user.FirstName,

@@ -23,10 +23,12 @@ Crear un archivo `appsettings.json` o usar variables de entorno:
 
 en caso de usar .env debe ser asi:
 ConnectionStrings__DefaultConnection=Server=tu_servidor;Port=tu_puerto;Database=tu_bd;User=root;Password=;
+Jwt__Key=TU_CLAVE_DE_32_CARACTERES
 
+en caso de usar todo en appsettings:
 ```json
 "Jwt": {
-  "Key": "REEMPLAZAR_EN_PRODUCCION",
+  "Key": "REEMPLAZAR_CON_LA_CLAVE_QUE_QUIERAS",
   "Issuer": "TiendaApi",
   "Audience": "TiendaApiUsers",
   "ExpireMinutes": 30
