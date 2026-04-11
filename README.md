@@ -33,3 +33,7 @@ en caso de usar todo en appsettings:
   "Audience": "TiendaApiUsers",
   "ExpireMinutes": 30
 }
+
+Para ejecutar migraciones abrir la terminal y poner:
+dotnet ef migrations add nombreActualizacion --project Data --startup-project TiendaVirtualApi
+dotnet ef database update --project Data --startup-project TiendaVirtualApi

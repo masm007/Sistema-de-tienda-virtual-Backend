@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Net.Mail;
+using Domain.Enum;
 
 namespace Domain.Entity {
     public class UserEntity {
@@ -13,6 +14,7 @@ namespace Domain.Entity {
         public string LastName { get; private set; }
         public string Email { get; private set; }
         public string Password { get; private set; }
+        public UserRole Role { get; private set; }
         public string Fullname => $"{FirstName} {LastName}";
 
         //importante para EF
@@ -28,7 +30,9 @@ namespace Domain.Entity {
             this.LastName = lastName.Trim();
             this.Email = normalizedEmail;
             this.Password = password;
+            this.Role = UserRole.User;
         }
+
         public UserEntity(int id, string firstName, string lastName, string email, string password) {
             var normalizedEmail = NormalizeEmail(email);
             ValidateName(firstName, "nombre");
@@ -40,6 +44,7 @@ namespace Domain.Entity {
             this.LastName = lastName.Trim();
             this.Email = normalizedEmail;
             this.Password = password;
+            this.Role = UserRole.User;
         }
 
         public void ValidateName(string name, string property) {
@@ -96,6 +101,14 @@ namespace Domain.Entity {
                 throw new ArgumentException("Email inválido", nameof(email));
 
             return email.Trim().ToLowerInvariant();
+        }
+
+        public void MakeAdmin() {
+            this.Role = UserRole.Admin;
+        }
+
+        public void MakeUser() {
+            this.Role = UserRole.User;
         }
     }
 }

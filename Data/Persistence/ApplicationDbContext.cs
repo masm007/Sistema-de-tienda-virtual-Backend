@@ -1,4 +1,5 @@
 ﻿using Domain.Entity;
+using Domain.Enum;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -20,10 +21,11 @@ namespace Data.Persistence {
                 ent.ToTable("Users");
                 ent.HasKey(e => e.Id);
                 ent.Property(e => e.Id).IsRequired().ValueGeneratedOnAdd();
-                ent.Property(e => e.FirstName).IsRequired().HasMaxLength(20);
-                ent.Property(e => e.LastName).IsRequired().HasMaxLength(20);
+                ent.Property(e => e.FirstName).IsRequired().HasMaxLength(50);
+                ent.Property(e => e.LastName).IsRequired().HasMaxLength(50);
                 ent.Property(e => e.Email).IsRequired().HasMaxLength(100);
                 ent.Property(e => e.Password).IsRequired();
+                ent.Property(e => e.Role).IsRequired().HasDefaultValue(UserRole.User);
                 ent.Ignore(e => e.Fullname);
                 ent.Property<DateTime>("CreatedAt").IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
                 ent.Property<DateTime>("UpdatedAt").IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");

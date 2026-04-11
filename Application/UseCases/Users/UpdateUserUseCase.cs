@@ -46,7 +46,6 @@ namespace Application.UseCases.Users {
             if (!Regex.IsMatch(password, regexPass)) throw new ArgumentException
                     ("La contrasenia no cumple con el formato adecuado (mas de 12 caracteres" +
                     " entre ellos: una mayuscula, una minuscula y un caracter especial)");
-
         }
     }
 }

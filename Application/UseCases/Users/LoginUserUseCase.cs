@@ -20,7 +20,7 @@ namespace Application.UseCases.Users {
             _jwtService = jwtService;
             _passwordHasher = passwordHasher;
         }
-        public async Task<ResponseUserDto?> Execute(LoginUserDto loginUserDto) {
+        public async Task<ResponseLoginUserDto?> Execute(LoginUserDto loginUserDto) {
             var normalizedEmail = loginUserDto.Email.Trim().ToLowerInvariant();
             var user = await _repository.GetByEmailAsync(normalizedEmail);
             if (user == null) {
@@ -35,7 +35,7 @@ namespace Application.UseCases.Users {
             }
             */
             var token = _jwtService.GenerateToken(user);
-            var usuario = new ResponseUserDto(
+            var usuario = new ResponseLoginUserDto(
                 user.FirstName,
                 user.LastName,
                 user.Email,

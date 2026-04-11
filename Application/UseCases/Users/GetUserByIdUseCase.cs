@@ -1,4 +1,5 @@
-﻿using Domain.Entity;
+﻿using Application.DTOs.Users;
+using Domain.Entity;
 using Domain.Repository;
 using System;
 using System.Collections.Generic;
@@ -13,8 +14,13 @@ namespace Application.UseCases.Users {
             _repository = repository;
         }
 
-        public async Task<UserEntity?> ExecuteAsync(int id) {
-            return await _repository.GetByIdAsync(id);
+        public async Task<ResponseUserDto?> ExecuteAsync(int id) {
+            var user = await _repository.GetByIdAsync(id);
+            if (user == null) {
+                throw new InvalidOperationException("Usuario no encontrado");
+            }
+            var responseUser = new ResponseUserDto(user.Id,user.FirstName, user.LastName, user.Email, user.Role);
+            return responseUser;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Domain.Entity;
+﻿using Application.DTOs.Users;
+using Domain.Entity;
 using Domain.Repository;
 using System;
 using System.Collections.Generic;
@@ -13,8 +14,14 @@ namespace Application.UseCases.Users {
             _repository = repository;
         }
 
-        public async Task<IEnumerable<UserEntity>> ExecuteAsync() {
-            return await _repository.GetAllAsync();
+        public async Task<IEnumerable<ResponseUserDto>> ExecuteAsync() {
+            var users = await _repository.GetAllAsync();
+            List<ResponseUserDto> responseUsers = new List<ResponseUserDto>();
+            foreach (var user in users) {
+                var responseUser = new ResponseUserDto(user.Id, user.FirstName, user.LastName, user.Email, user.Role);
+                responseUsers.Add(responseUser);
+            }
+            return responseUsers;
         }
     }
 }

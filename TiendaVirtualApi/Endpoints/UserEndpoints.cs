@@ -1,11 +1,19 @@
 ﻿using Application.DTOs.User;
 using Application.DTOs.Users;
 using Application.UseCases.Users;
+using System.Security.Claims;
 
 namespace TiendaVirtualApi.Endpoints {
     public static class UserEndpoints {
         public static void MapUsersEndpoints(this IEndpointRouteBuilder app) {
-            var group = app.MapGroup("/api/users").WithTags("Users").RequireAuthorization();
+            var group = app.MapGroup("/api/users").WithTags("Users");
+
+            group.MapGet("/me", async (ClaimsPrincipal user, GetUserByIdUseCase getById) => {
+                var userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                var person = await getById.ExecuteAsync(userId);
+                return Results.Ok(person);
+            }).WithName("GetMyInfo").WithSummary("Obtener tu perfil")
+            .RequireAuthorization();
 
             group.MapGet("/{id:int}", async (int id, GetUserByIdUseCase idUseCase) => {
                 try {
@@ -15,6 +23,7 @@ namespace TiendaVirtualApi.Endpoints {
                     return Results.NotFound(new { error = e.Message });
                 }
             }).WithName("GetUserById").WithSummary("Obtener usuario por su id")
+            .RequireAuthorization("AdminOnly")
             //Produces(200).Produces(404);
             //.Produces<UserDto>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status200OK).Produces(StatusCodes.Status404NotFound);
@@ -27,7 +36,8 @@ namespace TiendaVirtualApi.Endpoints {
                     return Results.NotFound(new { error = e.Message });
                 }
             }).WithName("GetAllUsers").WithSummary("Obtener usuarios")
-            .Produces(StatusCodes.Status200OK).Produces(StatusCodes.Status404NotFound);
+            .Produces(StatusCodes.Status200OK).Produces(StatusCodes.Status404NotFound)
+            .RequireAuthorization("AdminOnly");
 
             group.MapPost("/", async (CreateUserDto user, CreateUserUseCase create) => {
                 try {
@@ -61,12 +71,13 @@ namespace TiendaVirtualApi.Endpoints {
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status500InternalServerError);
 
-            group.MapPut("/{id:int}", async (int id, EditUserDto user, UpdateUserUseCase update) => {
-                if (id != user.Id) {
-                    return Results.BadRequest(new { error = "El id de la ruta no coincide con el del cuerpo" });
+            group.MapPut("/me", async (ClaimsPrincipal user, EditUserDto dto, UpdateUserUseCase update) => {
+                var userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                if (userId != dto.Id) {
+                    return Results.BadRequest(new { error = "El id de la ruta no coincide con el que intenta editar" });
                 }
                 try {
-                    var person = await update.ExecuteAsync(user);
+                    var person = await update.ExecuteAsync(dto);
                     return Results.Ok(person);
                 } catch (InvalidOperationException e) {
                     return Results.NotFound(new { error = e.Message });
@@ -76,8 +87,26 @@ namespace TiendaVirtualApi.Endpoints {
                     return Results.InternalServerError("Ocurrió un error interno");
                 }
             }).WithName("UpdateUser").WithSummary("Actualiza un usuario")
+                .RequireAuthorization()
                 .Produces(StatusCodes.Status200OK).Produces(StatusCodes.Status404NotFound)
                 .Produces(StatusCodes.Status500InternalServerError);
+
+
+            group.MapDelete("/me", async (ClaimsPrincipal user, DeleteUserUseCase delete) => {
+                var userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                try {
+                    await delete.ExecuteAsync(userId);
+                    //return Results.Ok($"Se ha eliminado el usuario con el id {id}");
+                    return Results.NoContent();
+                } catch (InvalidOperationException e) {
+                    return Results.NotFound(new { error = e.Message });
+                } catch (Exception e) {
+                    return Results.InternalServerError("Ocurrió un error interno");
+                }
+            }).WithName("DeleteMyAccount").WithSummary("Eliminar mi cuenta")
+            .RequireAuthorization()
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound).Produces(StatusCodes.Status500InternalServerError);
 
             group.MapDelete("/{id:int}", async (int id, DeleteUserUseCase delete) => {
                 try {
@@ -90,6 +119,7 @@ namespace TiendaVirtualApi.Endpoints {
                     return Results.InternalServerError("Ocurrió un error interno");
                 }
             }).WithName("DeleteUser").WithSummary("Eliminar usuario por su id")
+            .RequireAuthorization("AdminOnly")
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound).Produces(StatusCodes.Status500InternalServerError);
 
