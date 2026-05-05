@@ -14,6 +14,7 @@ namespace Data.Persistence {
         }
 
         public DbSet<UserEntity> Users { get; set; }
+        public DbSet<RefreshTokenEntity> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             base.OnModelCreating(modelBuilder);
@@ -29,6 +30,17 @@ namespace Data.Persistence {
                 ent.Ignore(e => e.Fullname);
                 ent.Property<DateTime>("CreatedAt").IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
                 ent.Property<DateTime>("UpdatedAt").IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+            });
+            modelBuilder.Entity<RefreshTokenEntity>(ent => {
+                ent.ToTable("RefreshTokens");
+                ent.HasKey(e => e.Id);
+                ent.Property(e => e.TokenHash).IsRequired();
+                ent.Property(e => e.Expiration).IsRequired();
+                ent.Property(e => e.IsRevoked).IsRequired();
+                ent.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                // muchos tokens tienen un usuario
+                ent.HasOne(rt => rt.User).WithMany(u => u.RefreshTokens).HasForeignKey(rt => rt.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
             });
         }
 

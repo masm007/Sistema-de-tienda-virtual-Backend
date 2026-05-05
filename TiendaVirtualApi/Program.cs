@@ -1,9 +1,11 @@
-using Application.Interfaces;
+using Application.Interfaces.Configuration;
+using Application.Interfaces.Security;
 using Application.UseCases.Users;
 using Data.Persistence;
 using Data.Repositories;
 using Domain.Entity;
 using Domain.Repository;
+using Infrastructure.Configurations;
 using Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +24,15 @@ builder.Services.AddOpenApi();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
         throw new InvalidOperationException("No hay ninguna cadena de conexion a la bd");
+
+builder.Services.AddCors(options => {
+    options.AddPolicy("AllowFrontend",
+        policy => {
+            policy.WithOrigins("http://localhost:5173")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
 
 //builder.Services.AddAuthorization();
 builder.Services.AddAuthorization(options => {
@@ -55,6 +66,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 //inyeccion de dependencias
 builder.Services.AddScoped<IRepository<UserEntity, int>, UserRepository>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 //inyeccion de casos de usos
 builder.Services.AddScoped<CreateUserUseCase>();
@@ -63,10 +75,15 @@ builder.Services.AddScoped<GetAllUsersUseCase>();
 builder.Services.AddScoped<GetUserByIdUseCase>();
 builder.Services.AddScoped<DeleteUserUseCase>();
 builder.Services.AddScoped<LoginUserUseCase>();
+//servicios
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IRefreshTokenSettings, RefreshTokenSettings>();
+builder.Services.AddScoped<IRefreshTokenHasher, RefreshTokenHasher>();
+builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
 var app = builder.Build();
+app.UseCors("AllowFrontend");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment()) {

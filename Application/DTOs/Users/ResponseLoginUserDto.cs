@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Entity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,11 +11,13 @@ namespace Application.DTOs.Users {
         public string LastName { get; private set; }
         public string Email { get; private set; }
         public string AccessToken { get; private set; }
-        public ResponseLoginUserDto(string firstName, string lastName, string email, string jwtToken) {
+        public string RefreshToken { get; private set; }
+        public ResponseLoginUserDto(string firstName, string lastName, string email, string jwtToken, string refreshToken) {
             FirstName = firstName;
             LastName = lastName;
             Email = email;
             AccessToken = jwtToken;
+            RefreshToken = refreshToken;
         }
     }
 }

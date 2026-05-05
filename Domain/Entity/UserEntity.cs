@@ -15,6 +15,7 @@ namespace Domain.Entity {
         public string Email { get; private set; }
         public string Password { get; private set; }
         public UserRole Role { get; private set; }
+        public ICollection<RefreshTokenEntity> RefreshTokens { get; private set; } = new List<RefreshTokenEntity>();
         public string Fullname => $"{FirstName} {LastName}";
 
         //importante para EF

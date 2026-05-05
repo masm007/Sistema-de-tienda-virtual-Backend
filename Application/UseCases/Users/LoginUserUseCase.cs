@@ -1,5 +1,4 @@
 ﻿using Application.DTOs.Users;
-using Application.Interfaces;
 using Domain.Entity;
 using Domain.Repository;
 using System;
@@ -7,19 +6,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
+using System.Text;
+using Application.Interfaces.Security;
+using Application.Interfaces.Configuration;
 
 namespace Application.UseCases.Users {
     public class LoginUserUseCase {
         private readonly IRepository<UserEntity, int> _repository;
+        private readonly IRefreshTokenSettings _rtSettings;
         private readonly IJwtService _jwtService;
         private readonly IPasswordHasher _passwordHasher;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly IRefreshTokenHasher _refreshTokenHasher;
 
         public LoginUserUseCase(IRepository<UserEntity, int> repository, IJwtService jwtService,
-                IPasswordHasher passwordHasher) {
+                IPasswordHasher passwordHasher, IRefreshTokenRepository refreshTokenRepository,
+                IRefreshTokenSettings rtSettings, IRefreshTokenHasher refreshTokenHasher) {
             _repository = repository;
             _jwtService = jwtService;
             _passwordHasher = passwordHasher;
+            _refreshTokenRepository = refreshTokenRepository;
+            _rtSettings = rtSettings;
+            _refreshTokenHasher = refreshTokenHasher;
         }
+
         public async Task<ResponseLoginUserDto?> Execute(LoginUserDto loginUserDto) {
             var normalizedEmail = loginUserDto.Email.Trim().ToLowerInvariant();
             var user = await _repository.GetByEmailAsync(normalizedEmail);
@@ -29,17 +40,24 @@ namespace Application.UseCases.Users {
             if (!_passwordHasher.Verify(loginUserDto.Password, user.Password)) {
                 throw new UnauthorizedAccessException("Credenciales inválidas");
             }
-            /*
-            if (user.Password != loginUserDto.Password) {
-                throw new UnauthorizedAccessException("Credenciales inválidas");
-            }
-            */
+            //creacion del refresh token
+            var randomBytes = RandomNumberGenerator.GetBytes(64);
+            var refreshToken = Convert.ToBase64String(randomBytes);
+            var hashToken = _refreshTokenHasher.Hash(refreshToken);
+            var days = _rtSettings.ExpirationDays;
+            var expirationDate = DateTime.UtcNow.AddDays(days);
+            var refreshTokenEntity = new RefreshTokenEntity(user.Id, hashToken, expirationDate);
+            await _refreshTokenRepository.CreateAsync(refreshTokenEntity);
+            await _refreshTokenRepository.SaveChangesAsync();
+            //creacion del token
             var token = _jwtService.GenerateToken(user);
+            //objeto a devolver
             var usuario = new ResponseLoginUserDto(
                 user.FirstName,
                 user.LastName,
                 user.Email,
-                token
+                token,
+                refreshToken
             );
             return usuario;
         }

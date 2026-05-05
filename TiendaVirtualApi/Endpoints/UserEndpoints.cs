@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.User;
 using Application.DTOs.Users;
+using Application.UseCases.RefreshToken;
 using Application.UseCases.Users;
 using System.Security.Claims;
 
@@ -70,6 +71,28 @@ namespace TiendaVirtualApi.Endpoints {
             .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status500InternalServerError);
+
+            group.MapPost("/refresh", async (HttpContext context, GeneralRefreshTokenUseCase rf) => {
+                var refreshToken = context.Request.Cookies["refreshToken"];
+                if (string.IsNullOrEmpty(refreshToken)) {
+                    return Results.Unauthorized();
+                }
+                try {
+                    var response = await rf.Execute(refreshToken);
+
+                    context.Response.Cookies.Append("refreshToken", response.RefreshToken, new CookieOptions {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict
+                    });
+
+                    return Results.Ok(response);
+                } catch (UnauthorizedAccessException e) {
+                    return Results.Unauthorized();
+                } catch (Exception e) {
+                    return Results.InternalServerError("Ocurrió un error interno");
+                }
+            });
 
             group.MapPut("/me", async (ClaimsPrincipal user, EditUserDto dto, UpdateUserUseCase update) => {
                 var userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)!.Value);

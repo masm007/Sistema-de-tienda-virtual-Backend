@@ -1,5 +1,5 @@
 ﻿using Application.DTOs.User;
-using Application.Interfaces;
+using Application.Interfaces.Security;
 using Domain.Entity;
 using Domain.Repository;
 using System;
