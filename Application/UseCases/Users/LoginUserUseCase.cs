@@ -19,19 +19,25 @@ namespace Application.UseCases.Users {
         private readonly IPasswordHasher _passwordHasher;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IRefreshTokenHasher _refreshTokenHasher;
+        private readonly IRefreshTokenService _refreshTokenService;
 
         public LoginUserUseCase(IRepository<UserEntity, int> repository, IJwtService jwtService,
                 IPasswordHasher passwordHasher, IRefreshTokenRepository refreshTokenRepository,
-                IRefreshTokenSettings rtSettings, IRefreshTokenHasher refreshTokenHasher) {
+                IRefreshTokenSettings rtSettings, IRefreshTokenHasher refreshTokenHasher, 
+                IRefreshTokenService service) {
             _repository = repository;
             _jwtService = jwtService;
             _passwordHasher = passwordHasher;
             _refreshTokenRepository = refreshTokenRepository;
             _rtSettings = rtSettings;
             _refreshTokenHasher = refreshTokenHasher;
+            _refreshTokenService = service;
         }
 
-        public async Task<ResponseLoginUserDto?> Execute(LoginUserDto loginUserDto) {
+        public async Task<AuthResult> Execute(LoginUserDto loginUserDto) {
+            if (loginUserDto == null) {
+                throw new ArgumentNullException(nameof(loginUserDto));
+            }
             var normalizedEmail = loginUserDto.Email.Trim().ToLowerInvariant();
             var user = await _repository.GetByEmailAsync(normalizedEmail);
             if (user == null) {
@@ -40,6 +46,7 @@ namespace Application.UseCases.Users {
             if (!_passwordHasher.Verify(loginUserDto.Password, user.Password)) {
                 throw new UnauthorizedAccessException("Credenciales inválidas");
             }
+            await _refreshTokenService.RevokeAllUserTokensAsync(user.Id);
             //creacion del refresh token
             var randomBytes = RandomNumberGenerator.GetBytes(64);
             var refreshToken = Convert.ToBase64String(randomBytes);
@@ -52,14 +59,8 @@ namespace Application.UseCases.Users {
             //creacion del token
             var token = _jwtService.GenerateToken(user);
             //objeto a devolver
-            var usuario = new ResponseLoginUserDto(
-                user.FirstName,
-                user.LastName,
-                user.Email,
-                token,
-                refreshToken
-            );
-            return usuario;
+            var responseLoginUser = new ResponseLoginUserDto(user.FirstName, user.LastName, user.Email, token);
+            return new AuthResult(responseLoginUser, refreshToken);
         }
     }
 }

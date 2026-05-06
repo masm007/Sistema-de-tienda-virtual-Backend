@@ -2,6 +2,7 @@
 using Application.DTOs.Users;
 using Application.UseCases.RefreshToken;
 using Application.UseCases.Users;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace TiendaVirtualApi.Endpoints {
@@ -57,10 +58,18 @@ namespace TiendaVirtualApi.Endpoints {
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status500InternalServerError);
 
-            group.MapPost("/login", async (LoginUserDto user, LoginUserUseCase login) => {
+            group.MapPost("/login", async (HttpContext context, LoginUserDto user, LoginUserUseCase login) => {
                 try {
-                    var person = await login.Execute(user);
-                    return Results.Ok(person);
+                    var result = await login.Execute(user);
+                    context.Response.Cookies.Append("refreshToken", result.RefreshToken, new CookieOptions {
+                        HttpOnly = true,
+                        //Secure = true,
+                        Secure = context.Request.IsHttps,
+                        SameSite = SameSiteMode.Strict,
+                        //SameSite = SameSiteMode.None,
+                        Expires = DateTime.UtcNow.AddDays(7)
+                    });
+                    return Results.Ok(result.User);
                 } catch (UnauthorizedAccessException e) {
                     return Results.Unauthorized();
                 } catch (Exception e) {
@@ -79,14 +88,15 @@ namespace TiendaVirtualApi.Endpoints {
                 }
                 try {
                     var response = await rf.Execute(refreshToken);
-
                     context.Response.Cookies.Append("refreshToken", response.RefreshToken, new CookieOptions {
                         HttpOnly = true,
-                        Secure = true,
-                        SameSite = SameSiteMode.Strict
+                        //Secure = true,
+                        Secure = context.Request.IsHttps,
+                        SameSite = SameSiteMode.Strict,
+                        //SameSite = SameSiteMode.None,
+                        Expires = DateTime.UtcNow.AddDays(7)
                     });
-
-                    return Results.Ok(response);
+                    return Results.Ok(response.User);
                 } catch (UnauthorizedAccessException e) {
                     return Results.Unauthorized();
                 } catch (Exception e) {

@@ -29,7 +29,7 @@ namespace Application.UseCases.RefreshToken {
             _userRepository = userRepository;
             _tokenService = tokenService;
         }
-        public async Task<ResponseLoginUserDto> Execute(string refreshToken) {
+        public async Task<AuthResult> Execute(string refreshToken) {
             if (string.IsNullOrWhiteSpace(refreshToken)) {
                 throw new UnauthorizedAccessException();
             }
@@ -71,13 +71,8 @@ namespace Application.UseCases.RefreshToken {
             await _repository.SaveChangesAsync();
             //generar un nuevo JWT
             var jwt = _jwtService.GenerateToken(user);
-            return new ResponseLoginUserDto(
-                user.FirstName,
-                user.LastName,
-                user.Email,
-                jwt,
-                newRefreshToken
-            );
+            var responseLoginUser = new ResponseLoginUserDto(user.FirstName,user.LastName,user.Email,jwt);
+            return new AuthResult(responseLoginUser, newRefreshToken);
         }
     }
 }

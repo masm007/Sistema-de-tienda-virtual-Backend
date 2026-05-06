@@ -11,13 +11,13 @@ namespace Application.DTOs.Users {
         public string LastName { get; private set; }
         public string Email { get; private set; }
         public string AccessToken { get; private set; }
-        public string RefreshToken { get; private set; }
-        public ResponseLoginUserDto(string firstName, string lastName, string email, string jwtToken, string refreshToken) {
+        //no es seguro
+        //public string RefreshToken { get; private set; }
+        public ResponseLoginUserDto(string firstName, string lastName, string email, string jwtToken) {
             FirstName = firstName;
             LastName = lastName;
             Email = email;
             AccessToken = jwtToken;
-            RefreshToken = refreshToken;
         }
     }
 }

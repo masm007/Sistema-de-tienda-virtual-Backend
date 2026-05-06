@@ -25,12 +25,16 @@ builder.Services.AddOpenApi();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
         throw new InvalidOperationException("No hay ninguna cadena de conexion a la bd");
 
+var frontendUrl = builder.Configuration["FRONTEND_URL"] ?? 
+        throw new InvalidOperationException("FRONTEND_URL no configurado");
+
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowFrontend",
         policy => {
-            policy.WithOrigins("http://localhost:5173")
+            policy.WithOrigins(frontendUrl)
                   .AllowAnyHeader()
-                  .AllowAnyMethod();
+                  .AllowAnyMethod()
+                  .AllowCredentials();
         });
 });
 
@@ -83,7 +87,7 @@ builder.Services.AddScoped<IRefreshTokenHasher, RefreshTokenHasher>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
 var app = builder.Build();
-app.UseCors("AllowFrontend");
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment()) {
@@ -91,9 +95,10 @@ if (app.Environment.IsDevelopment()) {
 }
 
 app.UseHttpsRedirection();
-
 //para asegurarse aunque maneja el routing automáticamente al ser minimal api
 app.UseRouting();
+//habilita
+app.UseCors("AllowFrontend");
 //identifica quien eres
 app.UseAuthentication();
 //verifica que puedes hacer
