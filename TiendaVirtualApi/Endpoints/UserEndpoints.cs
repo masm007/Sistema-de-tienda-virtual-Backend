@@ -104,6 +104,16 @@ namespace TiendaVirtualApi.Endpoints {
                 }
             });
 
+            group.MapPost("/logout", async (HttpContext context, LogoutUserUseCase logout) => {
+                var refreshToken = context.Request.Cookies["refreshToken"];
+                if (!string.IsNullOrEmpty(refreshToken)) {
+                    await logout.Execute(refreshToken);
+                }
+                // eliminar cookie
+                context.Response.Cookies.Delete("refreshToken");
+                return Results.NoContent();
+            }).RequireAuthorization();
+
             group.MapPut("/me", async (ClaimsPrincipal user, EditUserDto dto, UpdateUserUseCase update) => {
                 var userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
                 if (userId != dto.Id) {
