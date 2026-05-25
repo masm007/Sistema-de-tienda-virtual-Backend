@@ -1,11 +1,13 @@
-﻿using System;
+﻿using Domain.Enum;
+using Domain.Validations;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Net.Mail;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Net.Mail;
-using Domain.Enum;
 
 namespace Domain.Entity {
     public class UserEntity {
@@ -23,9 +25,9 @@ namespace Domain.Entity {
 
         public UserEntity(string firstName, string lastName, string email, string password) {
             var normalizedEmail = NormalizeEmail(email);
-            ValidateName(firstName, "nombre");
-            ValidateName(lastName, "apellido");
-            ValidateEmail(normalizedEmail);
+            FieldsValidator.ValidateText(firstName, "nombre", 3, 100);
+            FieldsValidator.ValidateText(lastName, "apellido", 2, 100);
+            FieldsValidator.ValidateEmail(normalizedEmail);
 
             this.FirstName = firstName.Trim();
             this.LastName = lastName.Trim();
@@ -36,9 +38,9 @@ namespace Domain.Entity {
 
         public UserEntity(int id, string firstName, string lastName, string email, string password) {
             var normalizedEmail = NormalizeEmail(email);
-            ValidateName(firstName, "nombre");
-            ValidateName(lastName, "apellido");
-            ValidateEmail(normalizedEmail);
+            FieldsValidator.ValidateText(firstName, "nombre", 3, 100);
+            FieldsValidator.ValidateText(lastName, "apellido", 2, 100);
+            FieldsValidator.ValidateEmail(normalizedEmail);
 
             this.Id = id;
             this.FirstName = firstName.Trim();
@@ -48,44 +50,11 @@ namespace Domain.Entity {
             this.Role = UserRole.User;
         }
 
-        public void ValidateName(string name, string property) {
-            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException($"El {property} no puede estar vacio", nameof(name));
-            if (name.Trim().Length < 3) throw new ArgumentException($"El {property} no puede tener menos de 3 caracteres");
-            if (name.Trim().Length >= 100) throw new ArgumentException($"El {property} no puede superar los 100 caracteres");
-        }
-
-        public void ValidateEmail(string email) {
-            if (string.IsNullOrWhiteSpace(email))
-                throw new ArgumentException("El correo no puede estar vacío", nameof(email));
-
-            if (email.Length > 100)
-                throw new ArgumentException("El correo no puede superar los 100 caracteres");
-
-            try {
-                var addr = new MailAddress(email);
-            } catch {
-                throw new ArgumentException("El correo no tiene un formato válido");
-            }
-        }
-
-        /*
-        public void UpdatePersonalInfo(string firstName, string lastName, string email, string pass) {
-            var normalizedEmail = email.Trim().ToLowerInvariant();
-            ValidateName(firstName, "nombre");
-            ValidateName(lastName, "apellido");
-            ValidateEmail(normalizedEmail);
-            FirstName = firstName.Trim();
-            LastName = lastName.Trim();
-            Email = normalizedEmail;
-            Password = pass;
-        }
-        */
-
         public void UpdatePersonalInfo(string firstName, string lastName, string email) {
             var normalizedEmail = NormalizeEmail(email);
-            ValidateName(firstName, "nombre");
-            ValidateName(lastName, "apellido");
-            ValidateEmail(normalizedEmail);
+            FieldsValidator.ValidateText(firstName, "nombre", 3, 100);
+            FieldsValidator.ValidateText(lastName, "apellido", 2, 100);
+            FieldsValidator.ValidateEmail(normalizedEmail);
             FirstName = firstName.Trim();
             LastName = lastName.Trim();
             Email = normalizedEmail;
