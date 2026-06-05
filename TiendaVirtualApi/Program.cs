@@ -1,5 +1,6 @@
 using Application.Interfaces.Configuration;
 using Application.Interfaces.Security;
+using Application.Interfaces.Storage;
 using Application.UseCases.Users;
 using Data.Persistence;
 using Data.Repositories;
@@ -7,6 +8,7 @@ using Domain.Entity;
 using Domain.Repository;
 using Infrastructure.Configurations;
 using Infrastructure.Security;
+using Infrastructure.Storage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -71,7 +73,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //inyeccion de dependencias
 builder.Services.AddScoped<IRepository<UserEntity, int>, UserRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-
+builder.Services.AddScoped<ICategoryRepository<CategoryEntity, int>, CategoryRepository>();
+builder.Services.AddScoped<IProductRepository<ProductEntity, int>, ProductRepository>();
+builder.Services.AddScoped<IProductImageRepository<ProductImageEntity, int>, ProductImageRepository>();
 //inyeccion de casos de usos
 builder.Services.AddScoped<CreateUserUseCase>();
 builder.Services.AddScoped<UpdateUserUseCase>();
@@ -85,6 +89,7 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IRefreshTokenSettings, RefreshTokenSettings>();
 builder.Services.AddScoped<IRefreshTokenHasher, RefreshTokenHasher>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+builder.Services.AddScoped<IImageStorageService, ImageStorageService>();
 
 var app = builder.Build();
 

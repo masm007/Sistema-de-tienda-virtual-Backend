@@ -21,5 +21,10 @@ namespace Domain.Entity {
             ImageUrl = imageUrl;
             ProductId = productId;
         }
+
+        public ProductImageEntity(string cloudinaryPublicId, string imageUrl) {
+            CloudinaryPublicId = cloudinaryPublicId;
+            ImageUrl = imageUrl;
+        }
     }
 }
