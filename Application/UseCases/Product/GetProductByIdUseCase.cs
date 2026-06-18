@@ -26,13 +26,14 @@ namespace Application.UseCases.Product {
             if (prd == null) {
                 throw new InvalidOperationException("Producto no encontrado");
             }
-            _imageRepository.
-            var images = new List<ProductImageDto>();
-            foreach (var item in prd.Images) {
-                images.Add(new ProductImageDto(item.ImageUrl));
+            var images = await _imageRepository.GetAllByProductIdAsync(prd.Id);
+            //he estado usando mal Images pq no existe en bd
+            var urlImages = new List<ProductImageDto>();
+            foreach (var item in images) {
+                urlImages.Add(new ProductImageDto(item.ImageUrl));
             }
             var response = new ProductDto(prd.Id, prd.Name,prd.Description, prd.CategoryId,
-                prd.Price, prd.Sku, prd.Quantity, prd.IsAvailable, prd.IsActive, images);
+                prd.Price, prd.Sku, prd.Quantity, prd.IsAvailable, prd.IsActive, urlImages);
             return response;
         }
 

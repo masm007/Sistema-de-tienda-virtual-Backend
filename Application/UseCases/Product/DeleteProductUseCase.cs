@@ -13,20 +13,21 @@ namespace Application.UseCases.Product {
         private IProductRepository<ProductEntity, int> _repository;
         private readonly IImageStorageService _imageStorageService;
 
-        public DeleteProductUseCase(IProductRepository<ProductEntity, int> repository) {
+        public DeleteProductUseCase(IProductRepository<ProductEntity, int> repository,
+            IImageStorageService imageStorageService) {
             _repository = repository;
+            _imageStorageService = imageStorageService;
         }
 
-        public async Task ExecuteAsync(CreateProductDto dto) {
-            foreach (var img in dto.Images) {
-                try {
-                    var imagen = await _imageStorageService.DeleteImageAsync(img.);
-                } catch (Exception ex) { 
-
-                }
+        public async Task ExecuteAsync(int id) {
+            var prd = await _repository.GetByIdAsync(id);
+            if (prd == null) {
+                throw new InvalidOperationException("Producto no encontrado");
             }
-            await _repository.DeleteAsync(new ProductEntity(dto.Name, dto.Description, dto.Price, dto.Quantity,
-                dto.Images, dto.Sku, dto.CategoryId));
+            foreach (var img in prd.Images) {
+                await _imageStorageService.DeleteImageAsync(img.CloudinaryPublicId);
+            }
+            await _repository.DeleteAsync(prd);
             await _repository.SaveChangesAsync();
         }
     }

@@ -1,6 +1,8 @@
 using Application.Interfaces.Configuration;
 using Application.Interfaces.Security;
 using Application.Interfaces.Storage;
+using Application.UseCases.Category;
+using Application.UseCases.Product;
 using Application.UseCases.Users;
 using Data.Persistence;
 using Data.Repositories;
@@ -83,6 +85,19 @@ builder.Services.AddScoped<GetAllUsersUseCase>();
 builder.Services.AddScoped<GetUserByIdUseCase>();
 builder.Services.AddScoped<DeleteUserUseCase>();
 builder.Services.AddScoped<LoginUserUseCase>();
+
+builder.Services.AddScoped<CreateProductUseCase>();
+builder.Services.AddScoped<GetProductByIdUseCase>();
+builder.Services.AddScoped<GetAllProductsUseCase>();
+builder.Services.AddScoped<GetAllActiveProductsUseCase>();
+builder.Services.AddScoped<DeleteProductUseCase>();
+builder.Services.AddScoped<UpdateProductUseCase>();
+
+builder.Services.AddScoped<CreateCategoryUseCase>();
+builder.Services.AddScoped<GetAllCategoriesUseCase>();
+builder.Services.AddScoped<GetCategoryByIdUseCase>();
+builder.Services.AddScoped<UpdateCategoryUseCase>();
+builder.Services.AddScoped<DeleteCategoryUseCase>();
 //servicios
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();

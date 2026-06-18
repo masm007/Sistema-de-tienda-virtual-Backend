@@ -46,8 +46,9 @@ namespace Application.UseCases.Product {
             var product = new ProductEntity(dto.Name, dto.Description, dto.Price, dto.Quantity, 
                 imageProducts, dto.Sku, dto.CategoryId);
             await _repository.CreateAsync(product);
+            //no es necesario llamar al repositorio de la tabla de imagenes
             await _repository.SaveChangesAsync();
-
+            //ef core rastrea el id y lo asigna por eso no es null o 0
             return new ProductResponseDto(product.Id, product.Name);
         }
 

@@ -28,6 +28,7 @@ namespace Application.UseCases.Users {
             var user = new UserEntity(dto.FirstName, dto.LastName, dto.Email, hashedPassword);
             await _repository.CreateAsync(user);
             await _repository.SaveChangesAsync();
+            //cambiar los retornos de todos los use case de user
             return user;
         }
 

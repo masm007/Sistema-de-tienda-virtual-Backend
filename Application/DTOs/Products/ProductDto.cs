@@ -33,6 +33,18 @@ namespace Application.DTOs.Products {
             IsActive = isActive;
             Images = images;
         }
+
+        public ProductDto(int id, string name, string description, int categoryId, decimal price, string sku, int quantity, bool isAvailable, bool isActive) {
+            Id = id;
+            Name = name;
+            Description = description;
+            CategoryId = categoryId;
+            Price = price;
+            Sku = sku;
+            Quantity = quantity;
+            IsAvailable = isAvailable;
+            IsActive = isActive;
+        }
     }
 
 }

@@ -12,7 +12,6 @@ namespace Domain.Entity {
         public string Description { get; private set; }
         public ICollection<ProductEntity> Products { get; private set; } = new List<ProductEntity>();
 
-
         private CategoryEntity() {
         }
 
@@ -20,14 +19,22 @@ namespace Domain.Entity {
             FieldsValidator.ValidateText(name, "nombre", 3, 50);
             FieldsValidator.ValidateText(description, "descripcion", 20, 100);
             Id = id;
-            Name = name;
-            Description = description;
+            Name = name.Trim();
+            Description = description.Trim();
         }
+
         public CategoryEntity(string name, string description) {
             FieldsValidator.ValidateText(name, "nombre", 3, 50);
             FieldsValidator.ValidateText(description, "descripcion", 20, 100);
-            Name = name;
-            Description = description;
+            Name = name.Trim();
+            Description = description.Trim();
+        }
+
+        public void UpdateInfo(string name, string description) {
+            FieldsValidator.ValidateText(name, "nombre", 3, 50);
+            FieldsValidator.ValidateText(description, "descripción", 5, 100);
+            Name = name.Trim();
+            Description = description.Trim();
         }
     }
 }

@@ -33,12 +33,22 @@ namespace Data.Repositories {
             return Task.CompletedTask;
         }
 
+        public async Task<IEnumerable<ProductEntity>> GetAllActiveAsync() {
+            return await _context.Products.AsNoTracking().Where(prd => prd.IsActive == true)
+                .OrderBy(prd => prd.Id).ToListAsync();
+        }
+
         public async Task<IEnumerable<ProductEntity>> GetAllAsync() {
             return await _context.Products.AsNoTracking().OrderBy(prd => prd.Id).ToListAsync();
         }
 
+        public async Task<IEnumerable<ProductEntity>> GetAllByCategoryIdAsync(int categoryId) {
+            return await _context.Products.Where(prd => prd.CategoryId == categoryId)
+                .OrderBy(prd => prd.Id).ToListAsync();
+        }
+
         public async Task<ProductEntity?> GetByIdAsync(int id) {
-            return await _context.Products.FirstOrDefaultAsync(prd => prd.Id == id);
+            return await _context.Products.Include(p => p.Images).FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<int> SaveChangesAsync() {
