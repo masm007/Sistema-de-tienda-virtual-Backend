@@ -124,6 +124,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapUsersEndpoints();
+app.MapCategoriesEndpoints();
+app.MapProductsEndpoints();
 
 app.Run();
 

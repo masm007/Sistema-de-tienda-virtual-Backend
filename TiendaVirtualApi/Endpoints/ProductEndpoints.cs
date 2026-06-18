@@ -6,7 +6,7 @@ using System.Security.Claims;
 
 namespace TiendaVirtualApi.Endpoints {
     public static class ProductEndpoints {
-        public static void MapProdutcsEndpoints(this IEndpointRouteBuilder app) {
+        public static void MapProductsEndpoints(this IEndpointRouteBuilder app) {
             var group = app.MapGroup("/api/products").WithTags("Products");
 
             group.MapGet("/{id:int}", async (int id, GetProductByIdUseCase getByIdUseCase) => {
@@ -27,7 +27,7 @@ namespace TiendaVirtualApi.Endpoints {
                 } catch (InvalidOperationException e) {
                     return Results.NotFound(new { error = e.Message });
                 }
-            }).WithName("GetAllProducts").WithSummary("Obtener todos los productos activos")
+            }).WithName("GetAllActiveProducts").WithSummary("Obtener todos los productos activos")
             .AllowAnonymous()
             .Produces(StatusCodes.Status200OK).Produces(StatusCodes.Status404NotFound);
 
