@@ -1,8 +1,11 @@
-﻿using Application.DTOs.Products;
+﻿using Application.DTOs.Images;
+using Application.DTOs.Products;
 using Application.DTOs.User;
 using Application.UseCases.Product;
 using Application.UseCases.Users;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using TiendaVirtualApi.Request;
 
 namespace TiendaVirtualApi.Endpoints {
     public static class ProductEndpoints {
@@ -42,23 +45,34 @@ namespace TiendaVirtualApi.Endpoints {
             .RequireAuthorization("AdminOnly")
             .Produces(StatusCodes.Status200OK).Produces(StatusCodes.Status404NotFound);
 
-            group.MapPost("/", async (CreateProductDto prd, CreateProductUseCase create) => {
+            
+            group.MapPost("/", async ([FromForm] CreateProductRequest req, CreateProductUseCase create) => {
+                if (req.Images == null || req.Images.Count == 0) {
+                    return Results.BadRequest(new { error = "Debe enviar al menos una imagen" });
+                }
                 try {
+                    Console.WriteLine(req.Images == null);
+                    var prd = new CreateProductDto(req.Name, req.Description, req.Price, req.Quantity,
+                        req.Images.Select(img => new ProductImageUploadDto(img.OpenReadStream(), 
+                        img.FileName)).ToList(), req.Sku, req.CategoryId);
                     var product = await create.ExecuteAsync(prd);
                     return Results.Created($"/api/products/{product.Id}", product);
                 } catch (InvalidOperationException e) {
                     return Results.BadRequest(new { error = e.Message });
                 } catch (ArgumentException e) {
                     return Results.BadRequest(new { error = e.Message });
-                } catch (Exception e) {
+                } catch (Exception) {
                     return Results.InternalServerError("Ocurrió un error interno");
                 }
             }).WithName("CreateProduct").WithSummary("Crear un producto")
             .RequireAuthorization("AdminOnly")
+            // Se deshabilita Antiforgery porque la API usa autenticación JWT (Bearer)
+            // y no formularios/cookies de sesión tradicionales.
+            .DisableAntiforgery()
             .Produces(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status500InternalServerError);
-
+            
             group.MapDelete("/{id:int}", async (int id, DeleteProductUseCase deleteUseCase) => {
                 try {
                     await deleteUseCase.ExecuteAsync(id);

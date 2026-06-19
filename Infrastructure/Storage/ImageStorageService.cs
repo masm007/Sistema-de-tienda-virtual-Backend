@@ -13,10 +13,17 @@ namespace Infrastructure.Storage {
     public class ImageStorageService : IImageStorageService {
         private readonly Cloudinary _cloudinary;
         public ImageStorageService(IConfiguration configuration) {
+            /*
             var account = new Account(
                 configuration["Cloudinary:CloudName"],
                 configuration["Cloudinary:ApiKey"],
                 configuration["Cloudinary:ApiSecret"]
+            );
+            */
+            var account = new Account(
+                configuration["CLOUDINARY_CLOUD_NAME"],
+                configuration["CLOUDINARY_API_KEY"],
+                configuration["CLOUDINARY_API_SECRET"]
             );
             _cloudinary = new Cloudinary(account);
         }

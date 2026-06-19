@@ -5,6 +5,7 @@ using Application.Interfaces.Security;
 using Application.Interfaces.Storage;
 using Domain.Entity;
 using Domain.Repository;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,13 +15,13 @@ using System.Threading.Tasks;
 namespace Application.UseCases.Product {
     public class CreateProductUseCase {
         private readonly ICategoryRepository<CategoryEntity, int> _categoryRepository;
-        private readonly IProductRepository<ProductEntity, int> _repository;
+        private readonly IProductRepository<ProductEntity, int> _productRepository;
         //repository de img
         private readonly IImageStorageService _imageStorageService;
 
         public CreateProductUseCase(IProductRepository<ProductEntity, int> repository,
             IImageStorageService imageStorageService, ICategoryRepository<CategoryEntity, int> categoryRepository) {
-            _repository = repository;
+            _productRepository = repository;
             _categoryRepository = categoryRepository;
             _imageStorageService = imageStorageService;
         }
@@ -34,22 +35,36 @@ namespace Application.UseCases.Product {
             }
             var category = await _categoryRepository.GetByIdAsync(dto.CategoryId);
             if (category == null) {
-                throw new ArgumentException("La categoría no existe");
+                throw new InvalidOperationException("La categoría no existe");
             }
-            //a futuro validar que se suban todas las imagenes
-            //try catch()
             var imageProducts = new List<ProductImageEntity>();
-            foreach (var img in dto.Images) {
-                var imagen = await _imageStorageService.UploadImageAsync(img.FileStream, img.FileName);
-                imageProducts.Add(new ProductImageEntity(imagen.PublicId, imagen.Url));
-            }
-            var product = new ProductEntity(dto.Name, dto.Description, dto.Price, dto.Quantity, 
+            // PublicIds de las imágenes que sí lograron subirse
+            var uploadedPublicIds = new List<string>();
+            try {
+                foreach (var img in dto.Images) {
+                    using var stream = img.FileStream;
+                    var uploaded = await _imageStorageService.UploadImageAsync(stream, img.FileName);
+                    uploadedPublicIds.Add(uploaded.PublicId);
+                    imageProducts.Add(new ProductImageEntity(uploaded.PublicId, uploaded.Url));
+                }
+                var product = new ProductEntity(dto.Name, dto.Description, dto.Price, dto.Quantity,
                 imageProducts, dto.Sku, dto.CategoryId);
-            await _repository.CreateAsync(product);
-            //no es necesario llamar al repositorio de la tabla de imagenes
-            await _repository.SaveChangesAsync();
-            //ef core rastrea el id y lo asigna por eso no es null o 0
-            return new ProductResponseDto(product.Id, product.Name);
+                await _productRepository.CreateAsync(product);
+                //no es necesario llamar al repositorio de la tabla de imagenes
+                await _productRepository.SaveChangesAsync();
+                //ef core rastrea el id y lo asigna por asi decirlo de esta manera no es 0
+                return new ProductResponseDto(product.Id,product.Name);
+            } catch {
+                // Eliminar las imágenes que ya se habían subido
+                foreach (var publicId in uploadedPublicIds) {
+                    try {
+                        await _imageStorageService.DeleteImageAsync(publicId);
+                    } catch {
+                        // Se ignora la excepción para no ocultar la causa original del fallo
+                    }
+                }
+                throw;
+            }
         }
 
     }
