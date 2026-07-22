@@ -23,8 +23,12 @@ namespace Application.UseCases.Product {
             }
             var response = new List<ProductDto>();
             foreach (var prd in products) {
+                var images = new List<ProductImageDto>();
+                foreach (var img in prd.Images) {
+                    images.Add(new ProductImageDto(img.ImageUrl));
+                }
                 response.Add(new ProductDto(prd.Id, prd.Name, prd.Description, prd.CategoryId,
-                prd.Price, prd.Sku, prd.Quantity, prd.IsAvailable, prd.IsActive));
+                prd.Price, prd.Sku, prd.Quantity, prd.IsAvailable, prd.IsActive, images));
             }
             return response;
         }

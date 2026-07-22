@@ -2,6 +2,7 @@
 using Application.DTOs.Users;
 using Application.UseCases.RefreshToken;
 using Application.UseCases.Users;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -65,8 +66,9 @@ namespace TiendaVirtualApi.Endpoints {
                         HttpOnly = true,
                         //Secure = true,
                         Secure = context.Request.IsHttps,
-                        SameSite = SameSiteMode.Strict,
-                        //SameSite = SameSiteMode.None,
+                        //obliga a que tengan el mismo origen
+                        //SameSite = SameSiteMode.Strict,
+                        SameSite = SameSiteMode.None,
                         Expires = DateTime.UtcNow.AddDays(7)
                     });
                     return Results.Ok(result.User);
@@ -81,7 +83,7 @@ namespace TiendaVirtualApi.Endpoints {
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status500InternalServerError);
 
-            group.MapPost("/refresh", async (HttpContext context, GeneralRefreshTokenUseCase rf) => {
+            group.MapPost("/refresh", async (HttpContext context, [FromServices] GeneralRefreshTokenUseCase rf) => {
                 var refreshToken = context.Request.Cookies["refreshToken"];
                 if (string.IsNullOrEmpty(refreshToken)) {
                     return Results.Unauthorized();
@@ -92,8 +94,8 @@ namespace TiendaVirtualApi.Endpoints {
                         HttpOnly = true,
                         //Secure = true,
                         Secure = context.Request.IsHttps,
-                        SameSite = SameSiteMode.Strict,
-                        //SameSite = SameSiteMode.None,
+                        //SameSite = SameSiteMode.Strict,
+                        SameSite = SameSiteMode.None,
                         Expires = DateTime.UtcNow.AddDays(7)
                     });
                     return Results.Ok(response.User);
@@ -102,17 +104,30 @@ namespace TiendaVirtualApi.Endpoints {
                 } catch (Exception e) {
                     return Results.InternalServerError("Ocurrió un error interno");
                 }
-            });
+            }).WithName("Refresh").WithSummary("Renovar sesión")
+            .AllowAnonymous()
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status500InternalServerError);
 
-            group.MapPost("/logout", async (HttpContext context, LogoutUserUseCase logout) => {
+            group.MapPost("/logout", async (HttpContext context, [FromServices] LogoutUserUseCase logout) => {
                 var refreshToken = context.Request.Cookies["refreshToken"];
                 if (!string.IsNullOrEmpty(refreshToken)) {
                     await logout.Execute(refreshToken);
                 }
                 // eliminar cookie
-                context.Response.Cookies.Delete("refreshToken");
+                //context.Response.Cookies.Delete("refreshToken"); (antiguo)
+                context.Response.Cookies.Delete("refreshToken", new CookieOptions {
+                    HttpOnly = true,
+                    Secure = context.Request.IsHttps,
+                    SameSite = SameSiteMode.None,
+                    Path = "/"
+                });
                 return Results.NoContent();
-            }).RequireAuthorization();
+            }).WithName("Logout").WithSummary("Cerrar sesión")
+            .AllowAnonymous()
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status500InternalServerError);
 
             group.MapPut("/me", async (ClaimsPrincipal user, EditUserDto dto, UpdateUserUseCase update) => {
                 var userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)!.Value);

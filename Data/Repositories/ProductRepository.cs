@@ -34,12 +34,13 @@ namespace Data.Repositories {
         }
 
         public async Task<IEnumerable<ProductEntity>> GetAllActiveAsync() {
-            return await _context.Products.AsNoTracking().Where(prd => prd.IsActive == true)
-                .OrderBy(prd => prd.Id).ToListAsync();
+            return await _context.Products.AsNoTracking().Include(prd => prd.Images)
+                .Where(prd => prd.IsActive).OrderBy(prd => prd.Id).ToListAsync();
         }
 
         public async Task<IEnumerable<ProductEntity>> GetAllAsync() {
-            return await _context.Products.AsNoTracking().OrderBy(prd => prd.Id).ToListAsync();
+            return await _context.Products.AsNoTracking().Include(prd => prd.Images)
+                .OrderBy(prd => prd.Id).ToListAsync();
         }
 
         public async Task<IEnumerable<ProductEntity>> GetAllByCategoryIdAsync(int categoryId) {
