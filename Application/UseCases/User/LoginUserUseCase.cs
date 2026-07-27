@@ -13,7 +13,7 @@ using Application.Interfaces.Configuration;
 
 namespace Application.UseCases.Users {
     public class LoginUserUseCase {
-        private readonly IRepository<UserEntity, int> _repository;
+        private readonly IUserRepository<UserEntity, int> _repository;
         private readonly IRefreshTokenSettings _rtSettings;
         private readonly IJwtService _jwtService;
         private readonly IPasswordHasher _passwordHasher;
@@ -21,7 +21,7 @@ namespace Application.UseCases.Users {
         private readonly IRefreshTokenHasher _refreshTokenHasher;
         private readonly IRefreshTokenService _refreshTokenService;
 
-        public LoginUserUseCase(IRepository<UserEntity, int> repository, IJwtService jwtService,
+        public LoginUserUseCase(IUserRepository<UserEntity, int> repository, IJwtService jwtService,
                 IPasswordHasher passwordHasher, IRefreshTokenRepository refreshTokenRepository,
                 IRefreshTokenSettings rtSettings, IRefreshTokenHasher refreshTokenHasher, 
                 IRefreshTokenService service) {

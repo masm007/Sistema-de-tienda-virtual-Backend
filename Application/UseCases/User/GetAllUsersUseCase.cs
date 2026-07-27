@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 
 namespace Application.UseCases.Users {
     public class GetAllUsersUseCase {
-        private readonly IRepository<UserEntity, int> _repository;
-        public GetAllUsersUseCase(IRepository<UserEntity, int> repository) {
+        private readonly IUserRepository<UserEntity, int> _repository;
+        public GetAllUsersUseCase(IUserRepository<UserEntity, int> repository) {
             _repository = repository;
         }
 

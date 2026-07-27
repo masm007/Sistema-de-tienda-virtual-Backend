@@ -16,11 +16,11 @@ namespace Application.UseCases.RefreshToken {
         private readonly IRefreshTokenHasher _hasher;
         private readonly IRefreshTokenSettings _settings;
         private readonly IJwtService _jwtService;
-        private readonly IRepository<UserEntity, int> _userRepository;
+        private readonly IUserRepository<UserEntity, int> _userRepository;
         private readonly IRefreshTokenService _tokenService;
 
         public GeneralRefreshTokenUseCase(IRefreshTokenRepository repository, IRefreshTokenHasher hasher, 
-            IRefreshTokenSettings settings, IJwtService jwtService, IRepository<UserEntity, int> userRepository,
+            IRefreshTokenSettings settings, IJwtService jwtService, IUserRepository<UserEntity, int> userRepository,
             IRefreshTokenService tokenService) {
             _repository = repository;
             _hasher = hasher;

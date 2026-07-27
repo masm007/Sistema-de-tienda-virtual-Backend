@@ -74,7 +74,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 //inyeccion de dependencias
-builder.Services.AddScoped<IRepository<UserEntity, int>, UserRepository>();
+builder.Services.AddScoped<IUserRepository<UserEntity, int>, UserRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<ICategoryRepository<CategoryEntity, int>, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository<ProductEntity, int>, ProductRepository>();
