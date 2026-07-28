@@ -23,6 +23,7 @@ namespace Domain.Entity {
         public List<ProductImageEntity> Images { get; private set; } = [];
 
         public CategoryEntity Category { get; private set; }
+        public ICollection<OrderDetailEntity> OrderDetails { get; private set; }
 
         private ProductEntity() { }
 

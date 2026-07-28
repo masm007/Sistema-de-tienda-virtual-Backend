@@ -6,15 +6,23 @@ using System.Threading.Tasks;
 
 namespace Domain.Entity {
     public class OrderDetailEntity {
-        public int Quantity { get; set; }
+        public int Id { get; private set; }
+        public int OrderId { get; private set; }
+        public OrderEntity Order { get; private set; }
+        public int Quantity { get; private set; }
+        public int ProductId {  get; private set; }
         public ProductEntity Product { get; private set; }
         public decimal UnitPrice { get; private set; }
         public decimal Subtotal => UnitPrice * Quantity;
 
-        public OrderDetailEntity(ProductEntity product, int quantity) {
-            Product = product;
+        private OrderDetailEntity() {
+        }
+
+        public OrderDetailEntity(int productId, decimal unitPrice, int quantity) {
+            //OrderId = orderId;
+            ProductId = productId;
             Quantity = quantity;
-            UnitPrice = product.Price;
+            UnitPrice = unitPrice;
         }
 
     }

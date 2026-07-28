@@ -11,37 +11,40 @@ namespace Domain.Entity {
         public string OrderNumber { get; private set; } = string.Empty;
         public DateTime EmisionDate { get; private set; }
         public UserEntity User { get; private set; }
-        public ICollection<OrderDetailEntity> OrderDetails { get; private set; }
+        public int UserId { get; private set; }
+        public ICollection<OrderDetailEntity> OrderDetails { get; private set; } = new List<OrderDetailEntity>();
         public decimal Subtotal { get; private set; }
         public decimal Discount { get; private set; }
         public decimal Iva { get; private set; }
         public decimal Total {  get; private set; }
         public OrderStatus State { get; private set; }
 
-        public OrderEntity(string orderNumber, UserEntity client, 
+        //agregar validaciones
+        private OrderEntity() { }
+
+        public OrderEntity(string orderNumber, int userId, 
             ICollection<OrderDetailEntity> orderDetails, int iva = 15) {
             OrderNumber = orderNumber;
-            User = client;
-            EmisionDate = DateTime.UtcNow;
+            UserId = userId;
             State = OrderStatus.Pending;
             OrderDetails = orderDetails;
-            Subtotal = calculateSubtotal(orderDetails);
+            Subtotal = CalculateSubtotal(orderDetails);
             Discount = 0;
-            Iva = calculateIva(Subtotal, iva);
-            Total = calculateTotal(Subtotal, Iva);
+            Iva = CalculateIva(Subtotal, iva);
+            Total = CalculateTotal(Subtotal, Iva);
         }
 
-        private decimal calculateSubtotal(ICollection<OrderDetailEntity> orderDetails) {
+        private decimal CalculateSubtotal(ICollection<OrderDetailEntity> orderDetails) {
             decimal subtotal = 0;
             foreach (var item in orderDetails) {
                 subtotal += item.Subtotal;
             }
             return subtotal;
         }
-        private decimal calculateIva(decimal subtotal, int iva) {
+        private decimal CalculateIva(decimal subtotal, int iva) {
             return (subtotal*iva)/100;
         }
-        private decimal calculateTotal(decimal subtotal, decimal iva) {
+        private decimal CalculateTotal(decimal subtotal, decimal iva) {
             return subtotal + iva;
         }
 
