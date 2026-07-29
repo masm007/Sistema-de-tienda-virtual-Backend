@@ -71,7 +71,7 @@ namespace Application.UseCases.RefreshToken {
             await _repository.SaveChangesAsync();
             //generar un nuevo JWT
             var jwt = _jwtService.GenerateToken(user);
-            var responseLoginUser = new ResponseLoginUserDto(user.FirstName,user.LastName,user.Email,jwt);
+            var responseLoginUser = new LoginUserResponseDto(user.FirstName,user.LastName,user.Email,jwt);
             return new AuthResult(responseLoginUser, newRefreshToken);
         }
     }

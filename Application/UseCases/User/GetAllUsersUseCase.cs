@@ -14,11 +14,11 @@ namespace Application.UseCases.Users {
             _repository = repository;
         }
 
-        public async Task<IEnumerable<ResponseUserDto>> ExecuteAsync() {
+        public async Task<IEnumerable<UserResponseDto>> ExecuteAsync() {
             var users = await _repository.GetAllAsync();
-            List<ResponseUserDto> responseUsers = new List<ResponseUserDto>();
+            List<UserResponseDto> responseUsers = new List<UserResponseDto>();
             foreach (var user in users) {
-                var responseUser = new ResponseUserDto(user.Id, user.FirstName, user.LastName, user.Email, user.Role);
+                var responseUser = new UserResponseDto(user.Id, user.FirstName, user.LastName, user.Email, user.Role);
                 responseUsers.Add(responseUser);
             }
             return responseUsers;

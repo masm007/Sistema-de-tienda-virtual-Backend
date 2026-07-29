@@ -13,7 +13,7 @@ namespace Domain.Entity {
         public int ProductId {  get; private set; }
         public ProductEntity Product { get; private set; }
         public decimal UnitPrice { get; private set; }
-        public decimal Subtotal => UnitPrice * Quantity;
+        public decimal Subtotal { get; private set; }
 
         private OrderDetailEntity() {
         }
@@ -23,6 +23,11 @@ namespace Domain.Entity {
             ProductId = productId;
             Quantity = quantity;
             UnitPrice = unitPrice;
+            Subtotal = CalculateSubtotal(unitPrice, quantity);
+        }
+
+        private decimal CalculateSubtotal(decimal unitPrice, int quantity) {
+            return unitPrice * quantity;
         }
 
     }

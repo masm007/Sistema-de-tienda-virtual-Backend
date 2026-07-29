@@ -26,7 +26,7 @@ namespace Application.UseCases.Product {
             _imageStorageService = imageStorageService;
         }
 
-        public async Task<ProductResponseDto> ExecuteAsync(CreateProductDto dto) {
+        public async Task<CreateProductResponseDto> ExecuteAsync(CreateProductDto dto) {
             if (dto == null) {
                 throw new ArgumentNullException(nameof(dto));
             }
@@ -53,7 +53,7 @@ namespace Application.UseCases.Product {
                 //no es necesario llamar al repositorio de la tabla de imagenes
                 await _productRepository.SaveChangesAsync();
                 //ef core rastrea el id y lo asigna por asi decirlo de esta manera no es 0
-                return new ProductResponseDto(product.Id,product.Name);
+                return new CreateProductResponseDto(product.Id,product.Name);
             } catch {
                 // Eliminar las imágenes que ya se habían subido
                 foreach (var publicId in uploadedPublicIds) {

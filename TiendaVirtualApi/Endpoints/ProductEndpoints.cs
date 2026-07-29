@@ -51,7 +51,6 @@ namespace TiendaVirtualApi.Endpoints {
                     return Results.BadRequest(new { error = "Debe enviar al menos una imagen" });
                 }
                 try {
-                    Console.WriteLine(req.Images == null);
                     var prd = new CreateProductDto(req.Name, req.Description, req.Price, req.Quantity,
                         req.Images.Select(img => new ProductImageUploadDto(img.OpenReadStream(), 
                         img.FileName)).ToList(), req.Sku, req.CategoryId);

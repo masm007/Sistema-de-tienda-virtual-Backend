@@ -2,6 +2,7 @@ using Application.Interfaces.Configuration;
 using Application.Interfaces.Security;
 using Application.Interfaces.Storage;
 using Application.UseCases.Category;
+using Application.UseCases.Orders;
 using Application.UseCases.Product;
 using Application.UseCases.RefreshToken;
 using Application.UseCases.Users;
@@ -79,6 +80,8 @@ builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<ICategoryRepository<CategoryEntity, int>, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository<ProductEntity, int>, ProductRepository>();
 builder.Services.AddScoped<IProductImageRepository<ProductImageEntity, int>, ProductImageRepository>();
+builder.Services.AddScoped<IOrderRepository<OrderEntity, int>, OrderRepository>();
+
 //inyeccion de casos de usos
 builder.Services.AddScoped<CreateUserUseCase>();
 builder.Services.AddScoped<UpdateUserUseCase>();
@@ -101,6 +104,14 @@ builder.Services.AddScoped<GetAllCategoriesUseCase>();
 builder.Services.AddScoped<GetCategoryByIdUseCase>();
 builder.Services.AddScoped<UpdateCategoryUseCase>();
 builder.Services.AddScoped<DeleteCategoryUseCase>();
+
+builder.Services.AddScoped<CreateOrderUseCase>();
+builder.Services.AddScoped<GetAllOrdersUseCase>();
+builder.Services.AddScoped<GetAllOrdersByUserIdUseCase>();
+builder.Services.AddScoped<GetOrderByIdUseCase>();
+builder.Services.AddScoped<GetOrderByOrderNumber>();
+builder.Services.AddScoped<DeleteOrderUseCase>();
+builder.Services.AddScoped<UpdateOrderUseCase>();
 
 //servicios
 builder.Services.AddScoped<IJwtService, JwtService>();

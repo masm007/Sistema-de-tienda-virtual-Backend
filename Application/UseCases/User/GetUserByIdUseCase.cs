@@ -14,12 +14,12 @@ namespace Application.UseCases.Users {
             _repository = repository;
         }
 
-        public async Task<ResponseUserDto?> ExecuteAsync(int id) {
+        public async Task<UserResponseDto?> ExecuteAsync(int id) {
             var user = await _repository.GetByIdAsync(id);
             if (user == null) {
                 throw new InvalidOperationException("Usuario no encontrado");
             }
-            var responseUser = new ResponseUserDto(user.Id,user.FirstName, user.LastName, user.Email, user.Role);
+            var responseUser = new UserResponseDto(user.Id,user.FirstName, user.LastName, user.Email, user.Role);
             return responseUser;
         }
     }

@@ -59,7 +59,7 @@ namespace Application.UseCases.Users {
             //creacion del token
             var token = _jwtService.GenerateToken(user);
             //objeto a devolver
-            var responseLoginUser = new ResponseLoginUserDto(user.FirstName, user.LastName, user.Email, token);
+            var responseLoginUser = new LoginUserResponseDto(user.FirstName, user.LastName, user.Email, token);
             return new AuthResult(responseLoginUser, refreshToken);
         }
     }
