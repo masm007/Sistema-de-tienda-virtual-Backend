@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Application.UseCases.Orders {
     public class GetAllOrdersByUserIdUseCase {
-        private readonly IOrderRepository<OrderEntity, int> _orderRepository;
+        private readonly IOrderRepository<OrderEntity, string> _orderRepository;
 
-        public GetAllOrdersByUserIdUseCase(IOrderRepository<OrderEntity, int> orderRepository) {
+        public GetAllOrdersByUserIdUseCase(IOrderRepository<OrderEntity, string> orderRepository) {
             _orderRepository = orderRepository;
         }
     }

@@ -9,7 +9,7 @@ namespace TiendaVirtualApi.Endpoints {
         public static void MapOrdersEndpoints(this IEndpointRouteBuilder app) {
             var group = app.MapGroup("/api/orders").WithTags("Orders");
 
-             group.MapGet("/admin/{orderNumber:string}", async (string orderNumber,
+             group.MapGet("/admin/{orderNumber}", async (string orderNumber,
                 GetOrderByOrderNumberForAdminUseCase getByOrdNumberForAdminUseCase) => {
                     try {
                         var order = await getByOrdNumberForAdminUseCase.ExecuteAsync(orderNumber);
@@ -25,7 +25,7 @@ namespace TiendaVirtualApi.Endpoints {
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound);
 
-            group.MapGet("/{orderNumber:string}", async (string orderNumber, 
+            group.MapGet("/{orderNumber}", async (string orderNumber, 
                 GetOrderByOrderNumberForUserUseCase getByIdUseCase, HttpContext httpContext) => {
                 try {
                     var userIdClaim = httpContext.User.FindFirst(
@@ -50,7 +50,7 @@ namespace TiendaVirtualApi.Endpoints {
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound);
 
-            group.MapPost("", async (CreateOrderDto dto, CreateOrderUseCase createOrderUseCase, 
+            group.MapPost("/", async (CreateOrderDto dto, CreateOrderUseCase createOrderUseCase, 
                 HttpContext httpContext) => {
                 try {
                     var userIdClaim = httpContext.User.FindFirst(
@@ -76,7 +76,6 @@ namespace TiendaVirtualApi.Endpoints {
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .Produces(StatusCodes.Status500InternalServerError);
-
         }
     }
 }

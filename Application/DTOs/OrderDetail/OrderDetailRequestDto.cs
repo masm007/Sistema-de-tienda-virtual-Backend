@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs.OrderDetail {
     public class OrderDetailRequestDto {
-        //lo que enviar el front
+        //lo que envia el front
         public int Quantity { get; private set; }
         public int ProductId { get; set; }
 
-        public OrderDetailRequestDto(int id, int quantity) {
-            ProductId = id;
+        public OrderDetailRequestDto(int productId, int quantity) {
+            ProductId = productId;
             Quantity = quantity;
         }
     }

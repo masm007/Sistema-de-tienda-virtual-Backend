@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs.Orders {
     public class CreateOrderDto {
-        //se envia al back el usuario y los detalles de la orden
+        //esto lo enviará el front
         public List<OrderDetailRequestDto> Details { get; private set; } = [];
 
         public CreateOrderDto(List<OrderDetailRequestDto> details) {
