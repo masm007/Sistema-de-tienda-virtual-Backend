@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Data.Repositories {
-    public class OrderRepository : IOrderRepository<OrderEntity, int> {
+    public class OrderRepository : IOrderRepository<OrderEntity, string> {
         private readonly ApplicationDbContext _context;
 
         public OrderRepository(ApplicationDbContext dbContext) {
@@ -39,14 +39,55 @@ namespace Data.Repositories {
                 .Where(ord => ord.UserId == userId).OrderBy(ord => ord.Id).ToListAsync();
         }
 
-        public async Task<OrderEntity?> GetByIdAsync(int id) {
-            return await _context.Orders.Include(ord => ord.OrderDetails)
-                .FirstOrDefaultAsync(ord => ord.Id == id);
+        public async Task<OrderEntity?> GetByOrderNumberForAdminAsync(string orderNumber) {
+            return await _context.Orders.Include(ord => ord.User).Include(ord => ord.OrderDetails)
+            .ThenInclude(detail => detail.Product)
+            .FirstOrDefaultAsync(ord => ord.OrderNumber == orderNumber);
         }
 
-        public async Task<OrderEntity?> GetByOrderNumberAsync(string orderNumber) {
-            return await _context.Orders.Include(ord => ord.OrderDetails)
-                .FirstOrDefaultAsync(ord => ord.OrderNumber == orderNumber);
+        public async Task<OrderEntity?> GetByOrderNumberForUserAsync(string orderNumber, int userId) {
+            return await _context.Orders
+                .Include(ord => ord.User)
+                .Include(ord => ord.OrderDetails)
+                    .ThenInclude(detail => detail.Product)
+                .FirstOrDefaultAsync(ord =>
+                    ord.OrderNumber == orderNumber &&
+                    ord.UserId == userId);
+        }
+
+        //fue agregado aqui por motivos de manejar una sola transaccion en un lado
+        public async Task CreateWithNextNumberAsync(OrderEntity entity) {
+            if (entity == null) {
+                throw new ArgumentNullException(nameof(entity));
+            }
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync();
+            try {
+                // Obtener y bloquear la fila de la secuencia
+                var sequence = await _context.OrderNumbers
+                    .FromSqlRaw("""
+                SELECT *
+                FROM ordernumbersequence
+                WHERE Id = 1
+                LIMIT 1
+                FOR UPDATE
+                """)
+                    .SingleAsync();
+                sequence.Increment();
+                string orderNumber = $"FAC-{sequence.LastNumber:D8}";
+                // Asignar el número a la orden
+                entity.SetOrderNumber(orderNumber);
+                // Agregar la orden al contexto
+                await _context.Orders.AddAsync(entity);
+                // Guardar cambios
+                await _context.SaveChangesAsync();
+                // Confirmar transacción
+                await transaction.CommitAsync();
+            } catch {
+                // Si algo falla, deshacer toda la operación
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<int> SaveChangesAsync() {

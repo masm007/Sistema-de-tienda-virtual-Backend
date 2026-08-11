@@ -80,7 +80,7 @@ builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<ICategoryRepository<CategoryEntity, int>, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository<ProductEntity, int>, ProductRepository>();
 builder.Services.AddScoped<IProductImageRepository<ProductImageEntity, int>, ProductImageRepository>();
-builder.Services.AddScoped<IOrderRepository<OrderEntity, int>, OrderRepository>();
+builder.Services.AddScoped<IOrderRepository<OrderEntity, string>, OrderRepository>();
 
 //inyeccion de casos de usos
 builder.Services.AddScoped<CreateUserUseCase>();
@@ -108,8 +108,8 @@ builder.Services.AddScoped<DeleteCategoryUseCase>();
 builder.Services.AddScoped<CreateOrderUseCase>();
 builder.Services.AddScoped<GetAllOrdersUseCase>();
 builder.Services.AddScoped<GetAllOrdersByUserIdUseCase>();
-builder.Services.AddScoped<GetOrderByIdUseCase>();
-builder.Services.AddScoped<GetOrderByOrderNumber>();
+builder.Services.AddScoped<GetOrderByOrderNumberForUserUseCase>();
+builder.Services.AddScoped<GetOrderByOrderNumberForAdminUseCase>();
 builder.Services.AddScoped<DeleteOrderUseCase>();
 builder.Services.AddScoped<UpdateOrderUseCase>();
 
@@ -121,11 +121,17 @@ builder.Services.AddScoped<IRefreshTokenHasher, RefreshTokenHasher>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IImageStorageService, ImageStorageService>();
 
+// -Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment()) {
-    app.MapOpenApi();
+    //app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
@@ -141,6 +147,7 @@ app.UseAuthorization();
 app.MapUsersEndpoints();
 app.MapCategoriesEndpoints();
 app.MapProductsEndpoints();
+app.MapOrdersEndpoints();
 
 app.Run();
 

@@ -22,9 +22,9 @@ namespace Domain.Entity {
         //agregar validaciones
         private OrderEntity() { }
 
-        public OrderEntity(string orderNumber, int userId, 
+        public OrderEntity(int userId, 
             ICollection<OrderDetailEntity> orderDetails, int iva = 15) {
-            OrderNumber = orderNumber;
+            //OrderNumber = orderNumber;
             UserId = userId;
             State = OrderStatus.Pending;
             OrderDetails = orderDetails;
@@ -46,6 +46,10 @@ namespace Domain.Entity {
         }
         private decimal CalculateTotal(decimal subtotal, decimal iva) {
             return subtotal + iva;
+        }
+
+        public void SetOrderNumber(string orderNumber) {
+            OrderNumber = orderNumber;
         }
 
     }

@@ -20,6 +20,7 @@ namespace Data.Persistence {
         public DbSet<ProductImageEntity> ProductImages { get; set; }
         public DbSet<OrderEntity> Orders { get; set; }
         public DbSet<OrderDetailEntity> OrderDetails { get; set; }
+        public DbSet<OrderNumberSequenceEntity> OrderNumbers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             base.OnModelCreating(modelBuilder);
@@ -115,6 +116,12 @@ namespace Data.Persistence {
                 ent.HasOne(e => e.Order).WithMany(order => order.OrderDetails).HasForeignKey(e => e.OrderId).OnDelete(DeleteBehavior.Restrict);
                 //muchos detalles de orden tienen un producto
                 ent.HasOne(e => e.Product).WithMany(p => p.OrderDetails).HasForeignKey(e => e.ProductId).OnDelete(DeleteBehavior.Restrict);
+            });
+            modelBuilder.Entity<OrderNumberSequenceEntity>((ent) => {
+                ent.ToTable("OrderNumberSequence");
+                ent.HasKey(e => e.Id);
+                ent.Property(e => e.Id).IsRequired().ValueGeneratedOnAdd();
+                ent.Property(e => e.LastNumber).IsRequired();
             });
         }
 
