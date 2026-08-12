@@ -16,7 +16,7 @@ namespace TiendaVirtualApi.Endpoints {
                    } catch (InvalidOperationException e) {
                        return Results.NotFound(new { error = e.Message });
                    }
-               }).WithName("GetAllOrders")
+               }).WithName("GetAllOrdersForAdmin")
             .WithSummary("Obtener todas las ordenes de todos los usuario para admin")
             .RequireAuthorization("AdminOnly")
             .Produces(StatusCodes.Status200OK)
@@ -82,7 +82,7 @@ namespace TiendaVirtualApi.Endpoints {
                     } catch (InvalidOperationException e) {
                         return Results.NotFound(new { error = e.Message });
                     }
-                }).WithName("GetAllOrders")
+                }).WithName("GetAllOrdersForUser")
             .WithSummary("Obtener todas las ordenes para un usuario")
             .RequireAuthorization()
             .Produces(StatusCodes.Status200OK)
