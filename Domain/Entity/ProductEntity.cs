@@ -93,5 +93,16 @@ namespace Domain.Entity {
                 throw new ArgumentException("No se permiten imágenes duplicadas");
             }
         }
+
+        public void DecreaseStock(int quantity) {
+            if (quantity <= 0)
+                throw new ArgumentException("La cantidad debe ser mayor que cero.");
+
+            if (Quantity < quantity)
+                throw new InvalidOperationException(
+                    $"No hay suficiente stock de {Name}.");
+
+            Quantity -= quantity;
+        }
     }
 }

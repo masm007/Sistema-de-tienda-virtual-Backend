@@ -9,7 +9,22 @@ namespace TiendaVirtualApi.Endpoints {
         public static void MapOrdersEndpoints(this IEndpointRouteBuilder app) {
             var group = app.MapGroup("/api/orders").WithTags("Orders");
 
-             group.MapGet("/admin/{orderNumber}", async (string orderNumber,
+            group.MapGet("/admin/", async (GetAllOrdersUseCase getAllOrdersUseCase) => {
+                   try {
+                       var orders = await getAllOrdersUseCase.ExecuteAsync();
+                       return Results.Ok(orders);
+                   } catch (InvalidOperationException e) {
+                       return Results.NotFound(new { error = e.Message });
+                   }
+               }).WithName("GetAllOrders")
+            .WithSummary("Obtener todas las ordenes de todos los usuario para admin")
+            .RequireAuthorization("AdminOnly")
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound);
+
+            group.MapGet("/admin/{orderNumber}", async (string orderNumber,
                 GetOrderByOrderNumberForAdminUseCase getByOrdNumberForAdminUseCase) => {
                     try {
                         var order = await getByOrdNumberForAdminUseCase.ExecuteAsync(orderNumber);
@@ -44,6 +59,31 @@ namespace TiendaVirtualApi.Endpoints {
                 }
             }).WithName("GetOrderByOrderNumberForUser")
             .WithSummary("Obtener una orden por su numero de orden para usuario")
+            .RequireAuthorization()
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound);
+
+            group.MapGet("/", async (GetAllOrdersByUserIdUseCase getByIdUseCase, 
+                HttpContext httpContext) => {
+                    try {
+                        var userIdClaim = httpContext.User.FindFirst(
+                            ClaimTypes.NameIdentifier);
+                        if (userIdClaim == null) {
+                            return Results.Unauthorized();
+                        }
+                        //conversion más segura
+                        if (!int.TryParse(userIdClaim.Value, out int userId)) {
+                            return Results.Unauthorized();
+                        }
+                        var orders = await getByIdUseCase.ExecuteAsync(userId);
+                        return Results.Ok(orders);
+                    } catch (InvalidOperationException e) {
+                        return Results.NotFound(new { error = e.Message });
+                    }
+                }).WithName("GetAllOrders")
+            .WithSummary("Obtener todas las ordenes para un usuario")
             .RequireAuthorization()
             .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
