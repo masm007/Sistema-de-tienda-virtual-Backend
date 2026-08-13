@@ -18,24 +18,16 @@ namespace Application.UseCases.Orders {
             _orderRepository = orderRepository;
         }
 
-        public async Task<IEnumerable<OrderDto>> ExecuteAsync(int userId) {
-            var ordersResponse = new List<OrderDto>();
+        public async Task<IEnumerable<OrderSummaryDto>> ExecuteAsync(int userId) {
+            var ordersResponse = new List<OrderSummaryDto>();
             var orders = await _orderRepository.GetAllByUserIdAsync(userId);
             if (!orders.Any()) {
                 return ordersResponse;
             }
-            var user = new UserDto(orders.First().User.FirstName, orders.First().User.LastName, 
-                orders.First().User.Email);
             foreach (var order in orders) {
-                List<OrderDetailResponseDto> orderDetailsResponse = new List<OrderDetailResponseDto>();
-                foreach (var item in order.OrderDetails) {
-                    var prd = new ProductSummaryDto(item.Product.Id, item.Product.Name);
-                    orderDetailsResponse.Add(
-                        new OrderDetailResponseDto(prd, item.UnitPrice, item.Quantity, item.Subtotal));
-                }
-                ordersResponse.Add(new OrderDto(order.OrderNumber, order.EmisionDate, user,
-                    orderDetailsResponse, order.Subtotal, order.Discount, order.Iva, 
-                    order.Total, order.State));
+                int productsQuantity = order.OrderDetails.Sum(detail => detail.Quantity);
+                ordersResponse.Add(new OrderSummaryDto(order.OrderNumber, order.EmisionDate,
+                    productsQuantity, order.Total, order.State));
             }
             return ordersResponse;
         }

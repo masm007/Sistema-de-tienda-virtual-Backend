@@ -32,14 +32,13 @@ namespace Data.Repositories {
         public async Task<IEnumerable<OrderEntity>> GetAllAsync() {
             return await _context.Orders.AsNoTracking()
                 .Include(ord => ord.User)
-                .Include(ord => ord.OrderDetails).ThenInclude(detail => detail.Product)
+                .Include(ord => ord.OrderDetails)
                 .OrderBy(ord => ord.Id).ToListAsync();
         }
 
         public async Task<IEnumerable<OrderEntity>> GetAllByUserIdAsync(int userId) {
             return await _context.Orders.AsNoTracking()
-                .Include(ord => ord.User)
-                .Include(ord => ord.OrderDetails).ThenInclude(detail => detail.Product)
+                .Include(ord => ord.OrderDetails)
                 .Where(ord => ord.UserId == userId).OrderBy(ord => ord.Id).ToListAsync();
         }
 

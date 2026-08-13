@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs.Users {
     public class LoginUserDto {
+        //Lo que envia el front al logearse
         public string Email { get; set; }
         public string Password { get; set; }
     }

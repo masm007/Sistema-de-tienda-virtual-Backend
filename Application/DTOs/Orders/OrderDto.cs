@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs.Orders {
     public class OrderDto {
-        //se le retorna al usuario para la vista de su orden
+        //se le retorna al usuario para la vista de su orden completa
         public string OrderNumber { get; private set; } = string.Empty;
         public DateTime EmisionDate { get; private set; }
         public UserDto User { get; private set; }
