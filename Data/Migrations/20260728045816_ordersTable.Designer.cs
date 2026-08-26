@@ -4,6 +4,7 @@ using Data.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260728045816_ordersTable")]
+    partial class ordersTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -74,9 +77,6 @@ namespace Data.Migrations
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
-
-                    b.Property<decimal>("Subtotal")
-                        .HasColumnType("decimal(65,30)");
 
                     b.Property<decimal>("UnitPrice")
                         .HasPrecision(10, 2)
@@ -141,22 +141,6 @@ namespace Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Orders", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Entity.OrderNumberSequenceEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("LastNumber")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("OrderNumberSequence", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entity.ProductEntity", b =>

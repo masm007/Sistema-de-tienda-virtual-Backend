@@ -7,13 +7,16 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Domain.Repository {
-    public interface IRepository<TEntity, TId> where TEntity : class {
-        Task<TEntity?> GetByIdAsync(TId id);
+    public interface IOrderRepository<TEntity, TId> where TEntity : class {
+        Task<TEntity?> GetByOrderNumberForAdminAsync(TId id);
+        Task<TEntity?> GetByOrderNumberForUserAsync(TId id, int userId);
         Task<IEnumerable<TEntity>> GetAllAsync();
+        Task<IEnumerable<TEntity>> GetAllByUserIdAsync(int userId);
         Task CreateAsync(TEntity entity);
         Task UpdateAsync(TEntity entity);
-        Task DeleteAsync(TEntity entity);
-        Task<TEntity?> GetByEmailAsync(string email);
+        Task CancelOrderAsync(TEntity entity);
+        Task CreateWithNextNumberAsync(OrderEntity entity);
         Task<int> SaveChangesAsync();
+
     }
 }

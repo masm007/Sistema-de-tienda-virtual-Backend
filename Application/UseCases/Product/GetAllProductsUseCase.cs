@@ -28,7 +28,7 @@ namespace Application.UseCases.Product {
                     images.Add(new ProductImageDto(img.ImageUrl));
                 }
                 response.Add(new ProductDto(prd.Id, prd.Name, prd.Description, prd.CategoryId,
-                prd.Price, prd.Sku, prd.Quantity, prd.IsAvailable, prd.IsActive, images));
+                prd.Price, prd.Quantity, prd.IsAvailable, prd.IsActive, images));
             }
             return response;
         }

@@ -23,6 +23,7 @@ namespace Domain.Entity {
         public List<ProductImageEntity> Images { get; private set; } = [];
 
         public CategoryEntity Category { get; private set; }
+        public ICollection<OrderDetailEntity> OrderDetails { get; private set; }
 
         private ProductEntity() { }
 
@@ -91,6 +92,23 @@ namespace Domain.Entity {
             if (images.GroupBy(x => x.CloudinaryPublicId).Any(x => x.Count() > 1)) {
                 throw new ArgumentException("No se permiten imágenes duplicadas");
             }
+        }
+
+        public void DecreaseStock(int quantity) {
+            if (quantity <= 0) {
+                throw new ArgumentException("La cantidad debe ser mayor que cero.");
+            }
+            if (Quantity < quantity) {
+                throw new InvalidOperationException($"No hay suficiente stock de {Name}.");
+            }
+            Quantity -= quantity;
+        }
+
+        public void IncreaseStock(int quantity) {
+            if (quantity <= 0) {
+                throw new ArgumentException("La cantidad debe ser mayor que cero.");
+            }
+            Quantity += quantity;
         }
     }
 }
