@@ -14,7 +14,7 @@ namespace Domain.Repository {
         Task<IEnumerable<TEntity>> GetAllByUserIdAsync(int userId);
         Task CreateAsync(TEntity entity);
         Task UpdateAsync(TEntity entity);
-        Task DeleteAsync(TEntity entity);
+        Task CancelOrderAsync(TEntity entity);
         Task CreateWithNextNumberAsync(OrderEntity entity);
         Task<int> SaveChangesAsync();
 

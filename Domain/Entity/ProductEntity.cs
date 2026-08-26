@@ -95,14 +95,20 @@ namespace Domain.Entity {
         }
 
         public void DecreaseStock(int quantity) {
-            if (quantity <= 0)
+            if (quantity <= 0) {
                 throw new ArgumentException("La cantidad debe ser mayor que cero.");
-
-            if (Quantity < quantity)
-                throw new InvalidOperationException(
-                    $"No hay suficiente stock de {Name}.");
-
+            }
+            if (Quantity < quantity) {
+                throw new InvalidOperationException($"No hay suficiente stock de {Name}.");
+            }
             Quantity -= quantity;
+        }
+
+        public void IncreaseStock(int quantity) {
+            if (quantity <= 0) {
+                throw new ArgumentException("La cantidad debe ser mayor que cero.");
+            }
+            Quantity += quantity;
         }
     }
 }

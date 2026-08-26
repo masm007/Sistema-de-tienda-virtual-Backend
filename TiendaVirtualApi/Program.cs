@@ -110,7 +110,7 @@ builder.Services.AddScoped<GetAllOrdersUseCase>();
 builder.Services.AddScoped<GetAllOrdersByUserIdUseCase>();
 builder.Services.AddScoped<GetOrderByOrderNumberForUserUseCase>();
 builder.Services.AddScoped<GetOrderByOrderNumberForAdminUseCase>();
-builder.Services.AddScoped<DeleteOrderUseCase>();
+builder.Services.AddScoped<CancelOrderUseCase>();
 builder.Services.AddScoped<UpdateOrderUseCase>();
 
 //servicios

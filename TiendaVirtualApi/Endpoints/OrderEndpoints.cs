@@ -116,6 +116,41 @@ namespace TiendaVirtualApi.Endpoints {
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .Produces(StatusCodes.Status500InternalServerError);
+
+            group.MapPatch("/admin/{orderNumber}", async (string orderNumber, UpdateOrderDto dto, 
+                UpdateOrderUseCase updateOrderUseCase) => {
+                    try {
+                        await updateOrderUseCase.ExecuteAsync(dto, orderNumber);
+                        return Results.NoContent();
+                    } catch (InvalidOperationException e) {
+                        return Results.NotFound(new { error = e.Message });
+                    } catch (ArgumentException e) {
+                        return Results.BadRequest(new { error = e.Message });
+                    }
+                }).WithName("UpdateOrder").WithSummary("Actualizar el estado de una orden")
+            .RequireAuthorization("AdminOnly")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status500InternalServerError);
+
+            group.MapPatch("/admin/{orderNumber}/cancel", async (string orderNumber, CancelOrderUseCase cancelOrderUseCase) => {
+                    try {
+                        await cancelOrderUseCase.ExecuteAsync(orderNumber);
+                        return Results.NoContent();
+                    } catch (InvalidOperationException e) {
+                        return Results.NotFound(new { error = e.Message });
+                    } catch (ArgumentException e) {
+                        return Results.BadRequest(new { error = e.Message });
+                    }
+                }).WithName("CancelOrder").WithSummary("Establecer cancelado como estado de una orden")
+            .RequireAuthorization("AdminOnly")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status500InternalServerError);
         }
     }
 }

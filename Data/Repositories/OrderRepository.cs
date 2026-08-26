@@ -21,12 +21,44 @@ namespace Data.Repositories {
             await _context.Orders.AddAsync(entity);
         }
 
-        public Task DeleteAsync(OrderEntity entity) {
+        public async Task CancelOrderAsync(OrderEntity entity) {
             if (entity == null) {
                 throw new ArgumentNullException(nameof(entity));
             }
-            _context.Orders.Remove(entity);
-            return Task.CompletedTask;
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync();
+            try {
+                // Devolver el stock de los productos de la orden
+                foreach (var detail in entity.OrderDetails) {
+                    // Obtener y bloquear la fila del producto
+                    var product = await _context.Products
+                        .FromSqlRaw("""
+                            SELECT *
+                            FROM Products
+                            WHERE Id = {0}
+                            LIMIT 1
+                            FOR UPDATE
+                            """, detail.ProductId)
+                        .SingleOrDefaultAsync();
+                    if (product == null) {
+                        throw new InvalidOperationException(
+                            $"El producto con id {detail.ProductId} no existe.");
+                    }
+                    product.IncreaseStock(detail.Quantity);
+                }
+                // Cambiar el estado de la orden
+                entity.Cancel();
+                // Actualizar la orden
+                _context.Orders.Update(entity);
+                // Guardar cambios
+                await _context.SaveChangesAsync();
+                // Confirmar transacción
+                await transaction.CommitAsync();
+            } catch {
+                // Si algo falla, deshacer toda la operación
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<IEnumerable<OrderEntity>> GetAllAsync() {
@@ -100,7 +132,6 @@ namespace Data.Repositories {
 
                     product.DecreaseStock(detail.Quantity);
                 }
-
                 // Agregar la orden al contexto
                 await _context.Orders.AddAsync(entity);
                 // Guardar cambios

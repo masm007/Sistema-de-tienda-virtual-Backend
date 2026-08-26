@@ -52,5 +52,20 @@ namespace Domain.Entity {
             OrderNumber = orderNumber;
         }
 
+        public void Cancel() {
+            if (State != OrderStatus.Pending) {
+                throw new InvalidOperationException("Solo se pueden cancelar órdenes pendientes.");
+            }
+            State = OrderStatus.Cancelled;
+        }
+
+        public void UpdateOrderState(OrderStatus state) {
+            if (State == OrderStatus.Completed || State == OrderStatus.Cancelled) {
+                throw new InvalidOperationException
+                    ("No se pueden cambiar los estados de órdenes completadas o canceladas.");
+            }
+            State = state;
+        }
+
     }
 }
