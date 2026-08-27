@@ -33,7 +33,7 @@ namespace Application.UseCases.Product {
                 urlImages.Add(new ProductImageDto(item.ImageUrl));
             }
             var response = new ProductDto(prd.Id, prd.Name,prd.Description, prd.CategoryId,
-                prd.Price, prd.Sku, prd.Quantity, prd.IsAvailable, prd.IsActive, urlImages);
+                prd.Price, prd.Quantity, prd.IsAvailable, prd.IsActive, urlImages);
             return response;
         }
 

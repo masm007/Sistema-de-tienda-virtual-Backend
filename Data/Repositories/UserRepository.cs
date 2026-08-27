@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Data.Repositories {
-    public class UserRepository : IRepository<UserEntity, int> {
+    public class UserRepository : IUserRepository<UserEntity, int> {
         private readonly ApplicationDbContext _context;
 
         public UserRepository(ApplicationDbContext dbContext) {

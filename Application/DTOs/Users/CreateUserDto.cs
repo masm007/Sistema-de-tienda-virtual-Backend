@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs.User {
     public class CreateUserDto {
+        //lo que envia el front al crear cuenta
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }

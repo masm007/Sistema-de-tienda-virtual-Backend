@@ -18,6 +18,9 @@ namespace Data.Persistence {
         public DbSet<CategoryEntity> Categories { get; set; }
         public DbSet<ProductEntity> Products { get; set; }
         public DbSet<ProductImageEntity> ProductImages { get; set; }
+        public DbSet<OrderEntity> Orders { get; set; }
+        public DbSet<OrderDetailEntity> OrderDetails { get; set; }
+        public DbSet<OrderNumberSequenceEntity> OrderNumbers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             base.OnModelCreating(modelBuilder);
@@ -86,6 +89,39 @@ namespace Data.Persistence {
                 ent.HasOne(e => e.Product).WithMany(p => p.Images).HasForeignKey(e => e.ProductId).OnDelete(DeleteBehavior.Cascade);
                 ent.Property<DateTime>("CreatedAt").IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
                 ent.Property<DateTime>("UpdatedAt").IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+            });
+            modelBuilder.Entity<OrderEntity>((ent) => {
+                ent.ToTable("Orders");
+                ent.HasKey(e => e.Id);
+                ent.Property(e => e.Id).IsRequired().ValueGeneratedOnAdd();
+                ent.Property(e => e.OrderNumber).IsRequired().HasMaxLength(20);
+                ent.Property(e => e.EmisionDate).IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
+                ent.Property(e=> e.State).IsRequired().HasDefaultValue(OrderStatus.Pending);
+                ent.Property(e => e.Iva).IsRequired().HasPrecision(10, 2);
+                ent.Property(e => e.Subtotal).IsRequired().HasPrecision(10, 2);
+                ent.Property(e => e.Discount).HasPrecision(10, 2);
+                ent.Property(e => e.Total).IsRequired().HasPrecision(10, 2);
+                //muchas ordenes tienen un usuario
+                ent.HasOne(e => e.User).WithMany(user => user.Orders).HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Restrict);
+                ent.HasIndex(e => e.OrderNumber).IsUnique();
+                ent.HasIndex(e => e.UserId);
+            });
+            modelBuilder.Entity<OrderDetailEntity>((ent) => {
+                ent.ToTable("OrderDetails");
+                ent.HasKey(e => e.Id);
+                ent.Property(e => e.Id).IsRequired().ValueGeneratedOnAdd();
+                ent.Property(e => e.Quantity).IsRequired();
+                ent.Property(e => e.UnitPrice).IsRequired().HasPrecision(10, 2);
+                //muchos detalles de orden tienen una orden
+                ent.HasOne(e => e.Order).WithMany(order => order.OrderDetails).HasForeignKey(e => e.OrderId).OnDelete(DeleteBehavior.Restrict);
+                //muchos detalles de orden tienen un producto
+                ent.HasOne(e => e.Product).WithMany(p => p.OrderDetails).HasForeignKey(e => e.ProductId).OnDelete(DeleteBehavior.Restrict);
+            });
+            modelBuilder.Entity<OrderNumberSequenceEntity>((ent) => {
+                ent.ToTable("OrderNumberSequence");
+                ent.HasKey(e => e.Id);
+                ent.Property(e => e.Id).IsRequired().ValueGeneratedOnAdd();
+                ent.Property(e => e.LastNumber).IsRequired();
             });
         }
 

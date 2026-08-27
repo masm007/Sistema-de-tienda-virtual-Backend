@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Application.UseCases.Users {
     public class DeleteUserUseCase {
-        private readonly IRepository<UserEntity, int> _repository;
+        private readonly IUserRepository<UserEntity, int> _repository;
 
-        public DeleteUserUseCase(IRepository<UserEntity, int> repository) {
+        public DeleteUserUseCase(IUserRepository<UserEntity, int> repository) {
             _repository = repository;
         }
 

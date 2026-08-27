@@ -11,10 +11,10 @@ using System.Threading.Tasks;
 
 namespace Application.UseCases.Users {
     public class CreateUserUseCase {
-        private readonly IRepository<UserEntity, int> _repository;
+        private readonly IUserRepository<UserEntity, int> _repository;
         private readonly IPasswordHasher _passwordHasher;
 
-        public CreateUserUseCase(IRepository<UserEntity, int> repository, IPasswordHasher passwordHasher) {
+        public CreateUserUseCase(IUserRepository<UserEntity, int> repository, IPasswordHasher passwordHasher) {
             _repository = repository;
             _passwordHasher = passwordHasher;
         }
