@@ -21,6 +21,8 @@ namespace Data.Persistence {
         public DbSet<OrderEntity> Orders { get; set; }
         public DbSet<OrderDetailEntity> OrderDetails { get; set; }
         public DbSet<OrderNumberSequenceEntity> OrderNumbers { get; set; }
+        public DbSet<CouponEntity> Coupons { get; set; }
+        public DbSet<CouponProductEntity> CouponProducts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             base.OnModelCreating(modelBuilder);
@@ -101,10 +103,12 @@ namespace Data.Persistence {
                 ent.Property(e => e.Subtotal).IsRequired().HasPrecision(10, 2);
                 ent.Property(e => e.Discount).HasPrecision(10, 2);
                 ent.Property(e => e.Total).IsRequired().HasPrecision(10, 2);
+                ent.Property(e => e.CouponId);
                 //muchas ordenes tienen un usuario
                 ent.HasOne(e => e.User).WithMany(user => user.Orders).HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Restrict);
                 ent.HasIndex(e => e.OrderNumber).IsUnique();
                 ent.HasIndex(e => e.UserId);
+                ent.HasOne(e => e.Coupon).WithMany().HasForeignKey(e => e.CouponId).OnDelete(DeleteBehavior.SetNull);
             });
             modelBuilder.Entity<OrderDetailEntity>((ent) => {
                 ent.ToTable("OrderDetails");
@@ -122,6 +126,29 @@ namespace Data.Persistence {
                 ent.HasKey(e => e.Id);
                 ent.Property(e => e.Id).IsRequired().ValueGeneratedOnAdd();
                 ent.Property(e => e.LastNumber).IsRequired();
+            });
+            modelBuilder.Entity<CouponEntity>((ent) => {
+                ent.ToTable("Coupons");
+                ent.HasKey(e => e.Id);
+                ent.Property(e => e.Id).IsRequired().ValueGeneratedOnAdd();
+                ent.Property(e => e.Code).IsRequired().HasMaxLength(30);
+                ent.HasIndex(e => e.Code).IsUnique();
+                ent.Property(e => e.Type).IsRequired();
+                ent.Property(e => e.DiscountValue).IsRequired().HasPrecision(10, 2);
+                ent.Property(e => e.ExpirationDate).IsRequired();
+                ent.Property(e => e.IsActive).IsRequired().HasDefaultValue(true);
+                ent.Property(e => e.UsedCount).IsRequired().HasDefaultValue(0);
+                ent.Property<DateTime>("CreatedAt").IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
+            });
+            modelBuilder.Entity<CouponProductEntity>((ent) => {
+                ent.ToTable("CouponProducts");
+                ent.HasKey(e => e.Id);
+                ent.Property(e => e.Id).IsRequired().ValueGeneratedOnAdd();
+                ent.HasOne(e => e.Coupon).WithMany(c => c.RequiredProducts)
+                    .HasForeignKey(e => e.CouponId).OnDelete(DeleteBehavior.Cascade);
+                ent.HasOne(e => e.Product).WithMany()
+                    .HasForeignKey(e => e.ProductId).OnDelete(DeleteBehavior.Restrict);
+                ent.HasIndex(e => new { e.CouponId, e.ProductId }).IsUnique();
             });
         }
 

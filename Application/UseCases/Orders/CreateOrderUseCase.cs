@@ -2,6 +2,7 @@
 using Application.DTOs.Orders;
 using Application.DTOs.Products;
 using Application.DTOs.Users;
+using Application.Helpers;
 using Application.Interfaces.Storage;
 using Domain.Entity;
 using Domain.Enum;
@@ -18,13 +19,16 @@ namespace Application.UseCases.Orders {
         private readonly IOrderRepository<OrderEntity, string> _orderRepository;
         private readonly IUserRepository<UserEntity, int> _userRepository;
         private readonly IProductRepository<ProductEntity, int> _productRepository;
+        private readonly ICouponRepository<CouponEntity, int> _couponRepository;
 
         public CreateOrderUseCase(IOrderRepository<OrderEntity, string> orderRepository, 
             IUserRepository<UserEntity, int> userRepository,
-            IProductRepository<ProductEntity, int> productRepository) {
+            IProductRepository<ProductEntity, int> productRepository,
+            ICouponRepository<CouponEntity, int> couponRepository) {
             _orderRepository = orderRepository;
             _userRepository = userRepository;
             _productRepository = productRepository;
+            _couponRepository = couponRepository;
         }
 
         public async Task<OrderDto> ExecuteAsync(CreateOrderDto dto, int id) {
@@ -60,9 +64,25 @@ namespace Application.UseCases.Orders {
                     new OrderDetailEntity(prd.Id, prd.Price, item.Quantity)
                 );
             }
-            var ord = new OrderEntity(user.Id, orderDetails);
+
+            decimal discount = 0;
+            CouponEntity? coupon = null;
+            if (!string.IsNullOrWhiteSpace(dto.CouponCode)) {
+                coupon = await _couponRepository.GetByCodeAsync(dto.CouponCode.Trim().ToUpperInvariant());
+                if (coupon == null) {
+                    throw new InvalidOperationException("Cupón no encontrado");
+                }
+                if (!coupon.IsValid()) {
+                    throw new InvalidOperationException("El cupón no es válido, expiró o alcanzó su límite de usos");
+                }
+                var eligibleSubtotal = CouponCalculator.CalculateEligibleSubtotal(coupon, orderDetails);
+                discount = coupon.CalculateDiscount(eligibleSubtotal);
+            }
+
+            var ord = new OrderEntity(user.Id, orderDetails, discount, coupon?.Id);
             // El repositorio genera el número y guarda la orden dentro de una misma transacción.
             await _orderRepository.CreateWithNextNumberAsync(ord);
+
             //ord tendrá todos los datos que fueron rastreados por ef core
             var userDto = new UserDto(user.FirstName, user.LastName, user.Email);
             var orderDetailsDto = new List<OrderDetailResponseDto>();

@@ -13,9 +13,11 @@ namespace Application.DTOs.Orders {
     public class CreateOrderDto {
         //esto lo enviará el front
         public List<OrderDetailRequestDto> Details { get; private set; } = [];
+        public string? CouponCode { get; private set; }
 
-        public CreateOrderDto(List<OrderDetailRequestDto> details) {
+        public CreateOrderDto(List<OrderDetailRequestDto> details, string? couponCode = null) {
             Details = details;
+            CouponCode = couponCode;
         }
     }
 }

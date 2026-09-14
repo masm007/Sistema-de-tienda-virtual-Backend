@@ -132,6 +132,20 @@ namespace Data.Repositories {
 
                     product.DecreaseStock(detail.Quantity);
                 }
+                if (entity.CouponId.HasValue) {
+                    var coupon = await _context.Coupons.FromSqlRaw("""
+                        SELECT *
+                        FROM Coupons
+                        WHERE Id = {0}
+                        LIMIT 1
+                        FOR UPDATE
+                        """, entity.CouponId.Value).SingleOrDefaultAsync();
+
+                    if (coupon == null || !coupon.IsValid()) {
+                        throw new InvalidOperationException("El cupón ya no es válido.");
+                    }
+                    coupon.RegisterUsage(); // EF lo rastrea, se guarda con el mismo SaveChangesAsync de abajo
+                }
                 // Agregar la orden al contexto
                 await _context.Orders.AddAsync(entity);
                 // Guardar cambios
