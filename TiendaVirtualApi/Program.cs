@@ -2,6 +2,7 @@ using Application.Interfaces.Configuration;
 using Application.Interfaces.Security;
 using Application.Interfaces.Storage;
 using Application.UseCases.Category;
+using Application.UseCases.Coupons;
 using Application.UseCases.Orders;
 using Application.UseCases.Product;
 using Application.UseCases.RefreshToken;
@@ -81,6 +82,7 @@ builder.Services.AddScoped<ICategoryRepository<CategoryEntity, int>, CategoryRep
 builder.Services.AddScoped<IProductRepository<ProductEntity, int>, ProductRepository>();
 builder.Services.AddScoped<IProductImageRepository<ProductImageEntity, int>, ProductImageRepository>();
 builder.Services.AddScoped<IOrderRepository<OrderEntity, string>, OrderRepository>();
+builder.Services.AddScoped<ICouponRepository<CouponEntity, int>, CouponRepository>();
 
 //inyeccion de casos de usos
 builder.Services.AddScoped<CreateUserUseCase>();
@@ -113,6 +115,11 @@ builder.Services.AddScoped<GetOrderByOrderNumberForAdminUseCase>();
 builder.Services.AddScoped<CancelOrderUseCase>();
 builder.Services.AddScoped<UpdateOrderUseCase>();
 
+builder.Services.AddScoped<CreateCouponUseCase>();
+builder.Services.AddScoped<GetAllCouponsUseCase>();
+builder.Services.AddScoped<ValidateCouponUseCase>();
+builder.Services.AddScoped<DeactivateCouponUseCase>();
+
 //servicios
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
@@ -143,11 +150,12 @@ app.UseCors("AllowFrontend");
 app.UseAuthentication();
 //verifica que puedes hacer
 app.UseAuthorization();
-
+//endpoints
 app.MapUsersEndpoints();
 app.MapCategoriesEndpoints();
 app.MapProductsEndpoints();
 app.MapOrdersEndpoints();
+app.MapCouponsEndpoints();
 
 app.Run();
 

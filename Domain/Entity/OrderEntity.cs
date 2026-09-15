@@ -18,9 +18,27 @@ namespace Domain.Entity {
         public decimal Iva { get; private set; }
         public decimal Total {  get; private set; }
         public OrderStatus State { get; private set; }
+        public int? CouponId { get; private set; }
+        public CouponEntity? Coupon { get; private set; }
 
         //agregar validaciones
         private OrderEntity() { }
+
+        public OrderEntity(int userId, ICollection<OrderDetailEntity> orderDetails,
+            decimal discount = 0, int? couponId = null, int iva = 15) {
+            UserId = userId;
+            State = OrderStatus.Pending;
+            OrderDetails = orderDetails;
+            Subtotal = CalculateSubtotal(orderDetails);
+            if (discount < 0 || discount > Subtotal) {
+                throw new ArgumentException("El descuento no puede ser negativo ni superar el subtotal");
+            }
+            Discount = discount;
+            CouponId = couponId;
+            var taxableAmount = Subtotal - Discount;
+            Iva = CalculateIva(taxableAmount, iva);
+            Total = CalculateTotal(taxableAmount, Iva);
+        }
 
         public OrderEntity(int userId, 
             ICollection<OrderDetailEntity> orderDetails, int iva = 15) {
