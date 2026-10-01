@@ -34,12 +34,12 @@ namespace Data.Repositories {
         }
 
         public async Task<IEnumerable<ProductEntity>> GetAllActiveAsync() {
-            return await _context.Products.AsNoTracking().Include(prd => prd.Images)
+            return await _context.Products.AsNoTracking().Include(prd => prd.Images).Include(p => p.Category)
                 .Where(prd => prd.IsActive).OrderBy(prd => prd.Id).ToListAsync();
         }
 
         public async Task<IEnumerable<ProductEntity>> GetAllAsync() {
-            return await _context.Products.AsNoTracking().Include(prd => prd.Images)
+            return await _context.Products.AsNoTracking().Include(prd => prd.Images).Include(p => p.Category)
                 .OrderBy(prd => prd.Id).ToListAsync();
         }
 
@@ -49,7 +49,13 @@ namespace Data.Repositories {
         }
 
         public async Task<ProductEntity?> GetByIdAsync(int id) {
-            return await _context.Products.Include(p => p.Images).FirstOrDefaultAsync(p => p.Id == id);
+            return await _context.Products.Include(p => p.Images).Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public async Task<ProductEntity?> GetBySkuAsync(string sku) {
+            return await _context.Products.Include(p => p.Images).Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.Sku.Equals(sku));
         }
 
         public async Task<int> SaveChangesAsync() {

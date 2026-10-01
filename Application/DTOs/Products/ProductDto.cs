@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Images;
+﻿using Application.DTOs.Categories;
+using Application.DTOs.Images;
 using Domain.Entity;
 using System;
 using System.Collections.Generic;
@@ -12,8 +13,9 @@ namespace Application.DTOs.Products {
         //deberia ser lo que recibe el usuario admin
         public int Id { get; private set; }
         public string Name { get; private set; }
+        public string Sku { get; private set; }
         public string Description { get; private set; }
-        public int CategoryId { get; private set; }
+        public CategorySummaryDto Category { get; private set; }
         public decimal Price { get; private set; }
         public int Quantity { get; private set; }
         public bool IsAvailable { get; private set; }
@@ -21,11 +23,13 @@ namespace Application.DTOs.Products {
         //retorna unicamente la url de la imagen del producto
         public List<ProductImageDto> Images { get; private set; } = [];
 
-        public ProductDto(int id, string name, string description, int categoryId, decimal price, int quantity, bool isAvailable, bool isActive, List<ProductImageDto> images) {
+        public ProductDto(int id, string name, string sku ,string description, CategorySummaryDto category, decimal price,
+            int quantity, bool isAvailable, bool isActive, List<ProductImageDto> images) {
             Id = id;
             Name = name;
+            Sku = sku;
             Description = description;
-            CategoryId = categoryId;
+            Category = category;
             Price = price;
             Quantity = quantity;
             IsAvailable = isAvailable;
@@ -33,11 +37,12 @@ namespace Application.DTOs.Products {
             Images = images;
         }
 
-        public ProductDto(int id, string name, string description, int categoryId, decimal price, int quantity, bool isAvailable, bool isActive) {
+        public ProductDto(int id, string name, string description, CategorySummaryDto category, decimal price, int quantity, 
+            bool isAvailable, bool isActive) {
             Id = id;
             Name = name;
             Description = description;
-            CategoryId = categoryId;
+            Category = category;
             Price = price;
             Quantity = quantity;
             IsAvailable = isAvailable;

@@ -23,6 +23,7 @@ namespace Data.Persistence {
         public DbSet<OrderNumberSequenceEntity> OrderNumbers { get; set; }
         public DbSet<CouponEntity> Coupons { get; set; }
         public DbSet<CouponProductEntity> CouponProducts { get; set; }
+        public DbSet<TaxSettingEntity> TaxSettings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             base.OnModelCreating(modelBuilder);
@@ -149,6 +150,15 @@ namespace Data.Persistence {
                 ent.HasOne(e => e.Product).WithMany()
                     .HasForeignKey(e => e.ProductId).OnDelete(DeleteBehavior.Restrict);
                 ent.HasIndex(e => new { e.CouponId, e.ProductId }).IsUnique();
+            });
+            modelBuilder.Entity<TaxSettingEntity>((ent) => {
+                ent.ToTable("TaxSettings");
+                ent.HasKey(e => e.Id);
+                ent.Property(e => e.Id).IsRequired().ValueGeneratedOnAdd();
+                ent.Property(e => e.IvaPercentage).IsRequired().HasPrecision(5, 2);
+                // Fila única con el porcentaje vigente; arranca igual al valor que
+                // antes estaba hardcodeado en OrderEntity.
+                ent.HasData(new { Id = 1, IvaPercentage = 15m });
             });
         }
 

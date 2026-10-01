@@ -37,7 +37,7 @@ namespace Application.UseCases.Coupons {
 
             var previewDetails = new List<OrderDetailEntity>();
             foreach (var item in details) {
-                var product = await _productRepository.GetByIdAsync(item.ProductId);
+                var product = await _productRepository.GetBySkuAsync(item.ProductSku);
                 if (product == null) {
                     throw new InvalidOperationException("Uno de los productos del carrito no existe");
                 }

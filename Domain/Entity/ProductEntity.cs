@@ -60,7 +60,7 @@ namespace Domain.Entity {
             int quantity, string sku, ICollection<ProductImageEntity> images) {
             FieldsValidator.ValidateText(name, "nombre", 5, 50);
             FieldsValidator.ValidateText(description, "descripcion", 20, 100);
-            FieldsValidator.ValidateNumber(price,"precio",0,50);
+            FieldsValidator.ValidateNumber(price,"precio",0,1000);
             FieldsValidator.ValidateNumber(quantity,"cantidad",1);
             string newSku = ValidateSku(sku);
             ValidateImages(images);

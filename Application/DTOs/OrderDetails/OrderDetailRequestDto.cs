@@ -9,10 +9,10 @@ namespace Application.DTOs.OrderDetail {
     public class OrderDetailRequestDto {
         //lo que envia el front
         public int Quantity { get; private set; }
-        public int ProductId { get; set; }
+        public string ProductSku { get; set; }
 
-        public OrderDetailRequestDto(int productId, int quantity) {
-            ProductId = productId;
+        public OrderDetailRequestDto(string productSku, int quantity) {
+            ProductSku = productSku;
             Quantity = quantity;
         }
     }

@@ -20,6 +20,17 @@ namespace TiendaVirtualApi.Endpoints {
                     return Results.NotFound(new { error = e.Message });
                 }
             }).WithName("GetProductById").WithSummary("Obtener producto por su id")
+            .RequireAuthorization("AdminOnly")
+            .Produces(StatusCodes.Status200OK).Produces(StatusCodes.Status404NotFound);
+
+            group.MapGet("/{sku}", async (string sku, GetProductBySkuUseCase getBySkuUseCase) => {
+                try {
+                    var product = await getBySkuUseCase.ExecuteAsync(sku);
+                    return Results.Ok(product);
+                } catch (InvalidOperationException e) {
+                    return Results.NotFound(new { error = e.Message });
+                }
+            }).WithName("GetProductBySku").WithSummary("Obtener producto por su Sku")
             .AllowAnonymous()
             .Produces(StatusCodes.Status200OK).Produces(StatusCodes.Status404NotFound);
 
@@ -72,6 +83,29 @@ namespace TiendaVirtualApi.Endpoints {
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status500InternalServerError);
             
+            group.MapPut("/{id:int}", async (int id, [FromForm] UpdateProductRequest req, UpdateProductUseCase update) => {
+                try {
+                    var newImages = (req.NewImages ?? new FormFileCollection())
+                        .Select(img => new ProductImageUploadDto(img.OpenReadStream(), img.FileName)).ToList();
+                    var dto = new UpdateProductDto(id, req.Name, req.Description, req.Price, req.Quantity,
+                        req.KeepImageIds, newImages, req.Sku, req.CategoryId, req.IsAvailable, req.IsActive);
+                    var product = await update.ExecuteAsync(dto);
+                    return Results.Ok(product);
+                } catch (InvalidOperationException e) {
+                    return Results.NotFound(new { error = e.Message });
+                } catch (ArgumentException e) {
+                    return Results.BadRequest(new { error = e.Message });
+                } catch (Exception) {
+                    return Results.InternalServerError("Ocurrió un error interno");
+                }
+            }).WithName("UpdateProduct").WithSummary("Actualizar un producto")
+            .RequireAuthorization("AdminOnly")
+            .DisableAntiforgery()
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status500InternalServerError);
+
             group.MapDelete("/{id:int}", async (int id, DeleteProductUseCase deleteUseCase) => {
                 try {
                     await deleteUseCase.ExecuteAsync(id);

@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Images;
+﻿using Application.DTOs.Categories;
+using Application.DTOs.Images;
 using Application.DTOs.Products;
 using Domain.Entity;
 using Domain.Repository;
@@ -25,9 +26,10 @@ namespace Application.UseCases.Product {
             foreach (var prd in products) {
                 var images = new List<ProductImageDto>();
                 foreach (var img in prd.Images) {
-                    images.Add(new ProductImageDto(img.ImageUrl));
+                    images.Add(new ProductImageDto(img.Id, img.ImageUrl));
                 }
-                response.Add(new ProductDto(prd.Id, prd.Name, prd.Description, prd.CategoryId,
+                var category = new CategorySummaryDto(prd.Category.Id, prd.Category.Name);
+                response.Add(new ProductDto(prd.Id, prd.Name, prd.Sku, prd.Description, category,
                 prd.Price, prd.Quantity, prd.IsAvailable, prd.IsActive, images));
             }
             return response;
