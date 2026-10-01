@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.User;
+using Application.DTOs.Users;
 using Application.Interfaces.Security;
 using Domain.Entity;
 using Domain.Repository;
@@ -20,23 +21,21 @@ namespace Application.UseCases.Users {
             _passwordHasher = passwordHasher;
         }
 
-        public async Task<UserEntity> ExecuteAsync(EditUserDto dto) {
+        public async Task<UserResponseDto> ExecuteAsync(EditUserDto dto) {
             var user = await _repository.GetByIdAsync(dto.Id);
             if (user == null) {
                 throw new ArgumentException("No se encontro a una persona con ese Id");
             }
             user.UpdatePersonalInfo(dto.FirstName, dto.LastName, dto.Email);
 
-            string? hashedPassword = null;
-
             if (!string.IsNullOrWhiteSpace(dto.Password)) {
                 ValidatePlainPassword(dto.Password);
-                hashedPassword = _passwordHasher.Hash(dto.Password);
+                var hashedPassword = _passwordHasher.Hash(dto.Password);
                 user.UpdatePassword(hashedPassword);
             }
             await _repository.UpdateAsync(user);
             await _repository.SaveChangesAsync();
-            return user;
+            return new UserResponseDto(user.Id, user.FirstName, user.LastName, user.Email, user.Role);
         }
 
         public void ValidatePlainPassword(string password) {

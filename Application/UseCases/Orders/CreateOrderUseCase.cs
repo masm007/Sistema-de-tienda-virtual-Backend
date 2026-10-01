@@ -20,15 +20,18 @@ namespace Application.UseCases.Orders {
         private readonly IUserRepository<UserEntity, int> _userRepository;
         private readonly IProductRepository<ProductEntity, int> _productRepository;
         private readonly ICouponRepository<CouponEntity, int> _couponRepository;
+        private readonly ITaxSettingRepository _taxSettingRepository;
 
-        public CreateOrderUseCase(IOrderRepository<OrderEntity, string> orderRepository, 
+        public CreateOrderUseCase(IOrderRepository<OrderEntity, string> orderRepository,
             IUserRepository<UserEntity, int> userRepository,
             IProductRepository<ProductEntity, int> productRepository,
-            ICouponRepository<CouponEntity, int> couponRepository) {
+            ICouponRepository<CouponEntity, int> couponRepository,
+            ITaxSettingRepository taxSettingRepository) {
             _orderRepository = orderRepository;
             _userRepository = userRepository;
             _productRepository = productRepository;
             _couponRepository = couponRepository;
+            _taxSettingRepository = taxSettingRepository;
         }
 
         public async Task<OrderDto> ExecuteAsync(CreateOrderDto dto, int id) {
@@ -49,7 +52,7 @@ namespace Application.UseCases.Orders {
             Dictionary<int, ProductEntity> products = new();
 
             foreach (var item in dto.Details) {
-                var prd = await _productRepository.GetByIdAsync(item.ProductId);
+                var prd = await _productRepository.GetBySkuAsync(item.ProductSku);
                 if (prd == null) {
                     throw new InvalidOperationException("El producto no existe.");
                 }
@@ -79,7 +82,9 @@ namespace Application.UseCases.Orders {
                 discount = coupon.CalculateDiscount(eligibleSubtotal);
             }
 
-            var ord = new OrderEntity(user.Id, orderDetails, discount, coupon?.Id);
+            var taxSetting = await _taxSettingRepository.GetAsync();
+            var ord = new OrderEntity(user.Id, orderDetails, discount, coupon?.Id,
+                taxSetting?.IvaPercentage ?? 15m);
             // El repositorio genera el número y guarda la orden dentro de una misma transacción.
             await _orderRepository.CreateWithNextNumberAsync(ord);
 

@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Images;
+﻿using Application.DTOs.Categories;
+using Application.DTOs.Images;
 using Application.DTOs.Products;
 using Application.DTOs.Users;
 using Application.Interfaces.Storage;
@@ -30,9 +31,10 @@ namespace Application.UseCases.Product {
             //he estado usando mal Images pq no existe en bd
             var urlImages = new List<ProductImageDto>();
             foreach (var item in images) {
-                urlImages.Add(new ProductImageDto(item.ImageUrl));
+                urlImages.Add(new ProductImageDto(item.Id, item.ImageUrl));
             }
-            var response = new ProductDto(prd.Id, prd.Name,prd.Description, prd.CategoryId,
+            var category = new CategorySummaryDto(prd.Category.Id, prd.Category.Name);
+            var response = new ProductDto(prd.Id, prd.Name, prd.Sku, prd.Description, category,
                 prd.Price, prd.Quantity, prd.IsAvailable, prd.IsActive, urlImages);
             return response;
         }

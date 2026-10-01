@@ -6,6 +6,7 @@ using Application.UseCases.Coupons;
 using Application.UseCases.Orders;
 using Application.UseCases.Product;
 using Application.UseCases.RefreshToken;
+using Application.UseCases.Settings;
 using Application.UseCases.Users;
 using Data.Persistence;
 using Data.Repositories;
@@ -83,6 +84,7 @@ builder.Services.AddScoped<IProductRepository<ProductEntity, int>, ProductReposi
 builder.Services.AddScoped<IProductImageRepository<ProductImageEntity, int>, ProductImageRepository>();
 builder.Services.AddScoped<IOrderRepository<OrderEntity, string>, OrderRepository>();
 builder.Services.AddScoped<ICouponRepository<CouponEntity, int>, CouponRepository>();
+builder.Services.AddScoped<ITaxSettingRepository, TaxSettingRepository>();
 
 //inyeccion de casos de usos
 builder.Services.AddScoped<CreateUserUseCase>();
@@ -96,6 +98,7 @@ builder.Services.AddScoped<GeneralRefreshTokenUseCase>();
 
 builder.Services.AddScoped<CreateProductUseCase>();
 builder.Services.AddScoped<GetProductByIdUseCase>();
+builder.Services.AddScoped<GetProductBySkuUseCase>();
 builder.Services.AddScoped<GetAllProductsUseCase>();
 builder.Services.AddScoped<GetAllActiveProductsUseCase>();
 builder.Services.AddScoped<DeleteProductUseCase>();
@@ -119,6 +122,9 @@ builder.Services.AddScoped<CreateCouponUseCase>();
 builder.Services.AddScoped<GetAllCouponsUseCase>();
 builder.Services.AddScoped<ValidateCouponUseCase>();
 builder.Services.AddScoped<DeactivateCouponUseCase>();
+
+builder.Services.AddScoped<GetTaxSettingUseCase>();
+builder.Services.AddScoped<UpdateTaxSettingUseCase>();
 
 //servicios
 builder.Services.AddScoped<IJwtService, JwtService>();
@@ -156,6 +162,7 @@ app.MapCategoriesEndpoints();
 app.MapProductsEndpoints();
 app.MapOrdersEndpoints();
 app.MapCouponsEndpoints();
+app.MapTaxSettingEndpoints();
 
 app.Run();
 

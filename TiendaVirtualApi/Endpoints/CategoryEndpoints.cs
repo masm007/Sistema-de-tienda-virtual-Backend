@@ -77,12 +77,15 @@ namespace TiendaVirtualApi.Endpoints {
                     return Results.NoContent();
                 } catch (InvalidOperationException e) {
                     return Results.NotFound(new { error = e.Message });
+                } catch (ArgumentException e) {
+                    return Results.BadRequest(new { error = e.Message });
                 } catch (Exception e) {
                     return Results.InternalServerError("Ocurrió un error interno");
                 }
             }).WithName("DeleteCategory").WithSummary("Eliminar categoria por su id")
             .RequireAuthorization("AdminOnly")
             .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status404NotFound).Produces(StatusCodes.Status500InternalServerError);
 
         }

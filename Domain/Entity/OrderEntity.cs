@@ -25,7 +25,7 @@ namespace Domain.Entity {
         private OrderEntity() { }
 
         public OrderEntity(int userId, ICollection<OrderDetailEntity> orderDetails,
-            decimal discount = 0, int? couponId = null, int iva = 15) {
+            decimal discount = 0, int? couponId = null, decimal iva = 15m) {
             UserId = userId;
             State = OrderStatus.Pending;
             OrderDetails = orderDetails;
@@ -40,8 +40,8 @@ namespace Domain.Entity {
             Total = CalculateTotal(taxableAmount, Iva);
         }
 
-        public OrderEntity(int userId, 
-            ICollection<OrderDetailEntity> orderDetails, int iva = 15) {
+        public OrderEntity(int userId,
+            ICollection<OrderDetailEntity> orderDetails, decimal iva = 15m) {
             //OrderNumber = orderNumber;
             UserId = userId;
             State = OrderStatus.Pending;
@@ -59,7 +59,7 @@ namespace Domain.Entity {
             }
             return subtotal;
         }
-        private decimal CalculateIva(decimal subtotal, int iva) {
+        private decimal CalculateIva(decimal subtotal, decimal iva) {
             return (subtotal*iva)/100;
         }
         private decimal CalculateTotal(decimal subtotal, decimal iva) {
